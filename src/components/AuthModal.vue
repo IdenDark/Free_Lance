@@ -38,11 +38,12 @@ function handleRegister() {
 
   <div class="glass rounded-2xl p-8 w-full max-w-md relative animate-fade">
 
-    <button @click="close()"
-            class="absolute top-4 right-4 text-muted hover:text-soft text-xl">
+    <button @click="showAuth = false"
+        class="absolute top-4 right-4 text-muted hover:text-soft text-xl">
       ✕
     </button>
 
+    
     <!-- Header -->
     <div class="flex items-center gap-2 mb-8">
       <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
