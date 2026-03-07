@@ -3,30 +3,30 @@ import { useAuthStore } from '@/stores/auth'
 
 import LandingView from '@/views/LandingView.vue'
 import AuthView from '@/views/AuthView.vue'
-// import ClientDashboard from '@/views/client/ClientDashboard.vue'
-// import FreelancerDashboard from '@/views/freelancer/FreelancerDashboard.vue'
-// import AdminDashboard from '@/views/admin/AdminDashboard.vue'
+import ClientDashboard from '@/views/client/ClientDashboard.vue'
+import FreelancerDashboard from '@/views/freelancer/FreelancerDashboard.vue'
+import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 
 const routes = [
   { path: '/', component: LandingView },
 
   { path: '/auth', component: AuthView },
 
-  // {
-  //   path: '/client',
-  //   component: ClientDashboard,
-  //   meta: { role: 'client' }
-  // },
-  // {
-  //   path: '/freelancer',
-  //   component: FreelancerDashboard,
-  //   meta: { role: 'freelancer' }
-  // },
-  // {
-  //   path: '/admin',
-  //   component: AdminDashboard,
-  //   meta: { role: 'admin' }
-  // }
+  {
+    path: '/client',
+    component: ClientDashboard,
+    meta: { role: 'client' }
+  },
+  {
+    path: '/freelancer',
+    component: FreelancerDashboard,
+    meta: { role: 'freelancer' }
+  },
+  {
+    path: '/admin',
+    component: AdminDashboard,
+    meta: { role: 'admin' }
+  }
 ]
 
 const router = createRouter({
