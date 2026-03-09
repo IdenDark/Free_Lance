@@ -1,41 +1,34 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
-  const isAuthenticated = ref(false)
   const router = useRouter()
 
-  function login(email, password, role) {
-    // fake login simulation
-    if (email && password) {
-      user.value = {
-        email,
-        role
-      }
-      isAuthenticated.value = true
-      router.push(`/${role}`)
-    }
-  }
+  const user = ref(null)
 
-  function register(name, email, password, role) {
-    if (name && email && password) {
-      user.value = {
-        name,
-        email,
-        role
-      }
-      isAuthenticated.value = true
-      router.push(`/${role}`)
+  const isAuthenticated = computed(() => !!user.value)
+
+  function login(role) {
+    user.value = {
+      name: role === 'client' ? 'Sarah Mitchell' :
+            role === 'freelancer' ? 'Daniel Osei' :
+            'Priya Nair',
+            role
     }
+
+    router.push(`/${role}`)
   }
 
   function logout() {
     user.value = null
-    isAuthenticated.value = false
     router.push('/')
   }
 
-  return { user, isAuthenticated, login, register, logout }
+  return {
+    user,
+    isAuthenticated,
+    login,
+    logout
+  }
 })
