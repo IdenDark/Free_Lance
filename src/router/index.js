@@ -19,6 +19,15 @@ import AdminReports from '@/views/admin/Reports.vue'
 import AdminSystem from '@/views/admin/System.vue'
 
 
+import ClientLayout from '@/views/client/ClientLayout.vue'
+import Overview from '@/views/client/Overview.vue'
+import Application from '@/views/client/Application.vue'
+import ProjectsTab from '@/views/client/ProjectsTab.vue'
+import JobsTab from '@/views/client/JobsTab.vue'
+
+
+
+
 
 
 
@@ -99,6 +108,33 @@ const routes = [
       name: 'admin-reports',
       component: AdminReports
     }
+},
+
+{
+  path: '/client',
+  component: ClientLayout,
+  children: [
+    {
+      path: '',
+      name: 'client-overview',
+      component: Overview
+    },
+    {
+      path: 'applications',
+      name: 'applications',
+      component: Application
+    },
+    {
+      path: 'projects',
+      name: 'projects',
+      component: ProjectsTab
+    },
+    {
+      path: 'jobs',
+      name: 'jobs',
+      component: JobsTab
+    }
+  
   ]
 }
 
