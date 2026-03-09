@@ -3,20 +3,12 @@ import { useAuthStore } from '@/stores/auth'
 
 import LandingView from '@/views/LandingView.vue'
 
-
-// Freelancer Routes
 import FreelancerLayout from '@/views/freelancer/FreelancerLayout.vue'
 import FreeLancerOverview from '@/views/freelancer/Overview.vue'
 import FreeLancerApplications from '@/views/freelancer/Applications.vue'
 import FreeLancerProfile from '@/views/freelancer/Profile.vue'
 import FreeLancerBrowse from '@/views/freelancer/Browse.vue'
 
-// Admin Routes
-import AdminLayout from '@/views/admin/AdminLayout.vue'
-import AdminDashboard from '@/views/admin/Dashboard.vue'
-import AdminUsers from '@/views/admin/Users.vue'
-import AdminReports from '@/views/admin/Reports.vue'
-import AdminSystem from '@/views/admin/System.vue'
 
 
 import ClientLayout from '@/views/client/ClientLayout.vue'
@@ -71,43 +63,8 @@ const routes = [
       name: 'freelancer-profile',
       component: FreeLancerProfile
     }
-
-
   ]
 
-  //admin routes
-
-  
-
-},
-
-//admin routes
-
-{
-  path: '/admin',
-  component: AdminLayout,
-   meta: { role: 'admin' },
-  children: [
-    {
-      path: '',
-      name: 'admin-dashboard',
-      component: AdminDashboard
-    },
-    {
-      path: 'users',
-      name: 'admin-users-manager',
-      component: AdminUsers
-    },
-    {
-      path: 'system',
-      name: 'admin-system-perfomance',
-      component: AdminSystem
-    },
-    {
-      path: 'reports',
-      name: 'admin-reports',
-      component: AdminReports
-    }
 },
 
 {
