@@ -10,12 +10,20 @@ import FreeLancerProfile from '@/views/freelancer/Profile.vue'
 import FreeLancerBrowse from '@/views/freelancer/Browse.vue'
 
 
-
+// Client Routes
 import ClientLayout from '@/views/client/ClientLayout.vue'
 import Overview from '@/views/client/Overview.vue'
 import Application from '@/views/client/Application.vue'
 import ProjectsTab from '@/views/client/ProjectsTab.vue'
 import JobsTab from '@/views/client/JobsTab.vue'
+
+
+// Admin Routes
+import AdminLayout from '@/views/admin/AdminLayout.vue'
+import AdminDashboard from '@/views/admin/Dashboard.vue'
+import AdminUsers from '@/views/admin/Users.vue'
+import AdminReports from '@/views/admin/Reports.vue'
+import AdminSystem from '@/views/admin/System.vue'
 
 
 
@@ -93,7 +101,35 @@ const routes = [
     }
   
   ]
-}
+},
+//admin routes
+
+{
+  path: '/admin',
+  component: AdminLayout,
+   meta: { role: 'admin' },
+  children: [
+    {
+      path: '',
+      name: 'admin-dashboard',
+      component: AdminDashboard
+    },
+    {
+      path: 'users',
+      name: 'admin-users-manager',
+      component: AdminUsers
+    },
+    {
+      path: 'system',
+      name: 'admin-system-perfomance',
+      component: AdminSystem
+    },
+    {
+      path: 'reports',
+      name: 'admin-reports',
+      component: AdminReports
+    }
+]},
 
 
 ]
