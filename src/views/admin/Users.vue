@@ -1,136 +1,69 @@
 <template>
-  <div class="users-container">
-    <h1>Users Management</h1>
-    
-    <div class="controls">
-      <button @click="addUser" class="btn btn-primary">Add User</button>
-      <input 
-        v-model="searchQuery" 
-        type="text" 
-        placeholder="Search users..."
-        class="search-input"
-      />
-    </div>
 
-    <table class="users-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in filteredUsers" :key="user.id">
-          <td>{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
-          <td>{{ user.status }}</td>
-          <td>
-            <button @click="editUser(user)" class="btn btn-sm btn-edit">Edit</button>
-            <button @click="deleteUser(user.id)" class="btn btn-sm btn-delete">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+   <div  class="page-enter">
+          <div class="flex gap-4 mb-5 flex-wrap">
+            <input type="text" placeholder="Search users..." class="max-w-xs"/>
+            <select class="w-40"><option>All Roles</option><option>Client</option><option>Freelancer</option></select>
+            <select class="w-40"><option>All Status</option><option>Active</option><option>Suspended</option></select>
+          </div>
+          <div class="rounded-2xl border border-border overflow-hidden" style="background:#1A1A24;">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border">
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">User</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Role</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Status</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Joined</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                <tr v-for="u in adminUsers" :key="u.id" class="hover:bg-white/5 transition-colors">
+                  <td class="px-5 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="avatar w-8 h-8 text-xs text-ink flex-shrink-0" :style="`background:${u.color}`">{{ u.initials }}</div>
+                      <div>
+                        <div class="font-500 text-sm">{{ u.name }}</div>
+                        <div class="text-muted text-xs">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4"><span class="badge" :class="u.role==='Client'?'badge-progress':'badge-open'" style="font-size:11px;">{{ u.role }}</span></td>
+                  <td class="px-5 py-4"><span :class="'badge badge-'+u.status" style="font-size:11px;">{{ u.statusLabel }}</span></td>
+                  <td class="px-5 py-4 text-muted text-xs">{{ u.joined }}</td>
+                  <td class="px-5 py-4">
+                    <div class="flex gap-2">
+                      <button class="text-xs text-muted hover:text-soft transition-colors">View</button>
+                      <button class="text-xs text-accent hover:underline">Edit</button>
+                      <button class="text-xs text-red-400 hover:underline">Suspend</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
 </template>
 
-<script>
-export default {
-  name: 'Users',
-  data() {
-    return {
-      searchQuery: '',
-      users: []
-    };
-  },
-  computed: {
-    filteredUsers() {
-      return this.users.filter(user =>
-        user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    }
-  },
-  methods: {
-    addUser() {
-      // Add user logic
-    },
-    editUser(user) {
-      // Edit user logic
-    },
-    deleteUser(userId) {
-      // Delete user logic
-    }
-  },
-  mounted() {
-    // Fetch users on component mount
-  }
-};
+
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const adminUsers   = [
+  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Client', status: 'active', statusLabel: 'Active', joined: '2023-01-15', color: '#64A0FF', initials: 'JD' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Freelancer', status: 'suspended', statusLabel: 'Suspended', joined: '2023-02-20', color: '#4ADE80', initials: 'JS' },
+  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Client', status: 'active', statusLabel: 'Active', joined: '2023-03-10', color: '#F59E0B', initials: 'BJ' },
+  { id: 4, name: 'Alice Williams', email: 'alice@example.com', role: 'Freelancer', status: 'active', statusLabel: 'Active', joined: '2023-04-05', color: '#8B5CF6', initials: 'AW' }
+]
+
+
+
+
+
 </script>
-
-<style scoped>
-.users-container {
-  padding: 20px;
-}
-
-.controls {
-  margin-bottom: 20px;
-  display: flex;
-  gap: 10px;
-}
-
-.search-input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.users-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-table th,
-.users-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.users-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-edit {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.8;
-}
-</style>
