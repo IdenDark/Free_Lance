@@ -7,7 +7,7 @@
           </div>
           <div class="grid gap-4">
             <div v-for="job in allJobs" :key="job.id"
-              class="card-hover rounded-2xl border border-border p-6" style="background:#1A1A24;">
+              class="card-hover rounded-2xl border border-border p-6 bg-card">
               <div class="flex flex-col md:flex-row md:items-start gap-4">
                 <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" :style="`background:${job.color}20`">{{ job.icon }}</div>
                 <div class="flex-1">

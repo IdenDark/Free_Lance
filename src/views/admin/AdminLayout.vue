@@ -1,6 +1,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -23,7 +24,7 @@ function logout() {
   <div class="flex min-h-screen">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col" style="background:#13131A;">
+    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col bg-secondary">
       <div class="p-6 border-b border-border">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
@@ -34,7 +35,7 @@ function logout() {
       </div>
       <div class="p-4 border-b border-border">
         <div class="flex items-center gap-3 p-3">
-          <div class="avatar w-10 h-10 text-sm text-ink" style="background:#C8F53E;">SM</div>
+          <div class="avatar w-10 h-10 text-sm text-ink bg-accent">SM</div>
           <div>
             <div class="font-display font-600 text-sm">Sarah Mitchell</div>
             <div class="text-muted text-xs">System Administrator</div>
@@ -73,9 +74,12 @@ function logout() {
           <h1 class="font-display font-700 text-lg">{{ adminNav.find(item => item.path === route.path)?.label || 'Dashboard' }}</h1>
           <p class="text-muted text-xs">System Administrator · Full Access</p>
         </div>
-        <div class="badge badge-completed">
-          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-dot mr-1.5"></span>
-          System Healthy
+        <div class="flex items-center gap-4">
+          <ThemeToggle />
+          <div class="badge badge-completed">
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-dot mr-1.5"></span>
+            System Healthy
+          </div>
         </div>
       </div>
 

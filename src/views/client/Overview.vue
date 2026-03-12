@@ -15,7 +15,7 @@
 
           <!-- Recent Jobs + Activity -->
           <div class="grid lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <div class="lg:col-span-2 rounded-2xl border border-border p-6 bg-card">
               <div class="flex items-center justify-between mb-5">
                 <h3 class="font-display font-600">Active Job Posts</h3>
                 <button @click="navigateTo('/client/jobs')" class="text-accent text-xs hover:underline">View All</button>
@@ -33,7 +33,7 @@
                 </div>
               </div>
             </div>
-            <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <div class="rounded-2xl border border-border p-6 bg-card">
               <h3 class="font-display font-600 mb-5">Recent Activity</h3>
               <div class="space-y-4">
                 <div v-for="a in recentActivity" :key="a.id" class="flex items-start gap-3">

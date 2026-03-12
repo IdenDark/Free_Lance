@@ -5,7 +5,7 @@
             <span class="badge badge-pending">1 Shortlisted</span>
             <span class="badge badge-completed">3 Completed</span>
           </div>
-          <div v-for="app in myApplications" :key="app.id" class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+          <div v-for="app in myApplications" :key="app.id" class="rounded-2xl border border-border p-6 bg-card">
             <div class="flex flex-col md:flex-row md:items-center gap-4">
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-1 flex-wrap">

@@ -7,7 +7,7 @@
           </div>
           <div class="grid gap-4">
             <div v-for="job in filteredClientJobs" :key="job.id"
-              class="card-hover rounded-2xl border border-border p-6 flex flex-col md:flex-row md:items-center gap-4" style="background:#1A1A24;">
+              class="card-hover rounded-2xl border border-border p-6 flex flex-col md:flex-row md:items-center gap-4 bg-card">
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
                   <h3 class="font-display font-600">{{ job.title }}</h3>
