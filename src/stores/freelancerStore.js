@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 //import of jobs
 import { useJobsStore } from './jobsStore'
+import { useClientStore } from './clientStore'
 
 export const useFreelancerStore = defineStore('freelancer', {
 
@@ -20,27 +21,18 @@ export const useFreelancerStore = defineStore('freelancer', {
   actions: {
 
     apply(job){
+      const jobsStore = useJobsStore()
+      const clientStore = useClientStore()
 
+      // register application in jobs database
+      jobsStore.applyToJob(job.id, "Freelancer")
 
+      // notify client side of the new application
+      clientStore.receiveApplication(job)
 
-    const jobsStore = useJobsStore()
-
-    // register application in jobs database
-    jobsStore.applyToJob(job.id, "Freelancer")
-
-    // track freelancer activity
-    this.myApplications.push(job)
-
-    this.stats.applications++
-
-  
-
+      // track freelancer activity
       this.myApplications.push(job)
-
       this.stats.applications++
-
     }
 
-  }
-
-})
+}})

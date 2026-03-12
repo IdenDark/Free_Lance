@@ -1,3 +1,35 @@
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const clientStats = [
+  { label: 'Active Jobs', value: '8', change: '+2 this week', color: '#64A0FF', icon: '💼' },
+  { label: 'Total Spent', value: '$12,450', change: '+$2,300 this month', color: '#4ADE80', icon: '💰' },
+  { label: 'Hired Freelancers', value: '24', change: '+3 this month', color: '#F59E0B', icon: '👥' },
+  { label: 'Avg. Rating', value: '4.8', change: '+0.2 this month', color: '#8B5CF6', icon: '⭐' }
+]
+
+const activeJobs = [
+  { id: 1, title: 'React Developer Needed', apps: 12, date: '2 days ago', status: 'open', statusLabel: 'Open' },
+  { id: 2, title: 'UI/UX Design Project', apps: 8, date: '1 week ago', status: 'reviewing', statusLabel: 'Reviewing' },
+  { id: 3, title: 'Node.js Backend', apps: 15, date: '3 days ago', status: 'open', statusLabel: 'Open' },
+  { id: 4, title: 'Mobile App Development', apps: 6, date: '5 days ago', status: 'closed', statusLabel: 'Closed' }
+]
+
+const recentActivity = [
+  { id: 1, text: 'John Smith applied to "React Developer Needed"', time: '2 hours ago', color: '#64A0FF', icon: '👤' },
+  { id: 2, text: 'You hired Sarah Johnson for "UI/UX Design Project"', time: '1 day ago', color: '#4ADE80', icon: '✅' },
+  { id: 3, text: 'Mike Chen submitted work for "Node.js Backend"', time: '3 days ago', color: '#F59E0B', icon: '📄' },
+  { id: 4, text: 'Payment of $2,500 sent to Alex Rodriguez', time: '1 week ago', color: '#8B5CF6', icon: '💳' }
+]
+
+
+</script>
+
 <template>
   <div class="page-enter space-y-8">
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -51,36 +83,3 @@
         </div>
 </template>
 
-<script setup>
-import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-
-const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
-
-const clientStats = [
-  { label: 'Active Jobs', value: '8', change: '+2 this week', color: '#64A0FF', icon: '💼' },
-  { label: 'Total Spent', value: '$12,450', change: '+$2,300 this month', color: '#4ADE80', icon: '💰' },
-  { label: 'Hired Freelancers', value: '24', change: '+3 this month', color: '#F59E0B', icon: '👥' },
-  { label: 'Avg. Rating', value: '4.8', change: '+0.2 this month', color: '#8B5CF6', icon: '⭐' }
-]
-
-const activeJobs = [
-  { id: 1, title: 'React Developer Needed', apps: 12, date: '2 days ago', status: 'open', statusLabel: 'Open' },
-  { id: 2, title: 'UI/UX Design Project', apps: 8, date: '1 week ago', status: 'reviewing', statusLabel: 'Reviewing' },
-  { id: 3, title: 'Node.js Backend', apps: 15, date: '3 days ago', status: 'open', statusLabel: 'Open' },
-  { id: 4, title: 'Mobile App Development', apps: 6, date: '5 days ago', status: 'closed', statusLabel: 'Closed' }
-]
-
-const recentActivity = [
-  { id: 1, text: 'John Smith applied to "React Developer Needed"', time: '2 hours ago', color: '#64A0FF', icon: '👤' },
-  { id: 2, text: 'You hired Sarah Johnson for "UI/UX Design Project"', time: '1 day ago', color: '#4ADE80', icon: '✅' },
-  { id: 3, text: 'Mike Chen submitted work for "Node.js Backend"', time: '3 days ago', color: '#F59E0B', icon: '📄' },
-  { id: 4, text: 'Payment of $2,500 sent to Alex Rodriguez', time: '1 week ago', color: '#8B5CF6', icon: '💳' }
-]
-
-function navigateTo(path) {
-  router.push(path)
-}
-</script>

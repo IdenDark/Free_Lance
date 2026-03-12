@@ -27,17 +27,7 @@ function logout() {
 }
 
 // job stuff
-function submitJob(){
-  
-  const job = {
-    title: "Mobile App Developer",
-    company: "StartupX",
-    budget: "$2500",
-    description: "Build Flutter mobile app"
-  }
-  
-  jobsStore.postJob(job)
-}
+
 
 function navigateTo(path) {
   router.push(path)

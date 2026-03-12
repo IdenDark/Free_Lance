@@ -25,7 +25,21 @@ export const useJobsStore = defineStore('jobs', {
       }
     ],
 
-    allJobs: [...this.featuredJobs],
+    allJobs: [
+
+  { id: 1, 
+    title: 'React Developer Needed', 
+    desc: 'Build a new UI', 
+    tags: ['React'], 
+    status: 'open', 
+    statusLabel: 'Open', 
+    budget: '$2,000', 
+    apps: 12 },
+
+  { id: 2, title: 'UI/UX Design Project', desc: 'Design landing page', tags: ['Figma'], status: 'reviewing', statusLabel: 'Reviewing', budget: '$1,200', apps: 8 }
+
+
+    ],
 
     clientJobsList: [],
 
@@ -38,6 +52,13 @@ export const useJobsStore = defineStore('jobs', {
     postJob(job){
 
       job.id = Date.now()
+      // normalize incoming job data to match store schema
+      job.desc = job.desc || job.description || ''
+      job.tags = job.tags || job.skills || []
+      job.status = job.status || 'open'
+      job.statusLabel = job.statusLabel || 'Open'
+      job.budget = job.budget || ''
+      job.apps = job.apps || 0
 
       this.allJobs.push(job)
 

@@ -1,9 +1,17 @@
 <script setup>
 import { useJobsStore } from '@/stores/jobsStore'
+import { useFreelancerStore } from '@/stores/freelancerStore'
 
 const jobsStore = useJobsStore()
+const freelancerStore = useFreelancerStore()
 
-const jobs = jobsStore.featuredJobs
+const jobs = jobsStore.allJobs
+
+// handler invoked when user clicks the "Apply Now" button
+function applyToJob(job) {
+  // delegate to freelancer store which will also call jobsStore.applyToJob
+  freelancerStore.apply(job)
+}
 </script>
 
 
