@@ -33,8 +33,7 @@ function handleRegister() {
 </script>
 
 <template>
-<div v-if="showAuth" 
-     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+<div v-if="showAuth"      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
 
   <div class="glass rounded-2xl p-8 w-full max-w-md relative animate-fade">
 
