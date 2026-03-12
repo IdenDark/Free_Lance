@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import AuthModal from '@/components/AuthModal.vue'
 
@@ -12,17 +12,31 @@ const auth = useAuthStore()
 
 /* ---------- Navigation Logic ---------- */
 
+// if the user becomes authenticated while on landing, send them to their home
+watch(
+  () => auth.isAuthenticated,
+  isAuth => {
+    if (isAuth) {
+      const dest = {
+        client: '/client',
+        freelancer: '/freelancer',
+        admin: '/admin'
+      }[auth.role] || '/'
+      router.push(dest)
+    }
+  }
+)
+
 function goToAuth(type) {
   router.push('/auth')
 }
 
 function goToDashboard(role) {
-  // If not authenticated, send to auth first
+  // If not authenticated, open login/register modal first
   if (!auth.isAuthenticated) {
-    router.push('/auth')
+    showAuth.value = true
     return
   }
-
   router.push(`/${role}`)
 }
 
@@ -114,13 +128,20 @@ const howItWorks = ref([
         </div>
 
         <div class="flex items-center gap-3">
-          <button @click="showAuth = true" class="btn-outline text-sm px-4 py-2">
-            Sign In
-          </button>
-          <button @click="showAuth = true" class="btn-primary text-sm px-4 py-2">
-            Get Started
-          </button>
-          <AuthModal v-model="showAuth" />
+          <template v-if="!auth.isAuthenticated">
+            <button @click="showAuth = true" class="btn-outline text-sm px-4 py-2">
+              Sign In
+            </button>
+            <button @click="showAuth = true" class="btn-primary text-sm px-4 py-2">
+              Get Started
+            </button>
+            <AuthModal v-model="showAuth" />
+          </template>
+          <template v-else>
+            <button @click="auth.logout();" class="btn-outline text-sm px-4 py-2">
+              Sign Out
+            </button>
+          </template>
         </div>
 
       </div>

@@ -24,6 +24,7 @@ const clientNav = [
 
 function logout() {
   authStore.logout()
+   router.push('/')
 }
 
 // job stuff
