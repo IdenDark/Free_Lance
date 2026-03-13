@@ -8,6 +8,7 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
+
 const adminNav = [
   { label: 'Dashboard', path: '/admin' },
   { label: 'Reports', path: '/admin/reports' },
@@ -38,7 +39,9 @@ function logout() {
         <div class="flex items-center gap-3 p-3">
           <div class="avatar w-10 h-10 text-sm text-ink bg-accent">SM</div>
           <div>
-            <div class="font-display font-600 text-sm">Sarah Mitchell</div>
+            <div class="font-display font-600 text-sm">
+              {{ authStore.user?.name || 'Admin' }}
+            </div>
             <div class="text-muted text-xs">System Administrator</div>
           </div>
         </div>
