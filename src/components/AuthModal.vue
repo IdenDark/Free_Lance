@@ -2,19 +2,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { nextTick } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
 const authTab = ref('login')
 const showAuth = defineModel() // if parent controls visibility
-
-//error message
-const registerEmailError = ref('')
-const registerPasswordError = ref('')
-const showPassword = ref(false)
-const authError = ref('')
 
 // Login fields
 const loginEmail = ref('')
@@ -27,49 +20,43 @@ const registerEmail = ref('')
 const registerPassword = ref('')
 const registerRole = ref('client')
 
-//logins
-function handleLogin() {
-  authError.value = ''
+import { nextTick } from 'vue'
 
+function handleLogin() {
   const success = authStore.login(
     loginEmail.value,
     loginPassword.value,
     loginRole.value
   )
-
   if (!success) {
-    authError.value = 'Invalid email, password, or role.'
+    alert('Invalid credentials')
   } else {
+    console.log('login succeeded role=', authStore.role)
     showAuth = false
+    // give Vue a tick to update reactive state before navigation
     nextTick(() => {
       const dest = {
         client: '/client',
         freelancer: '/freelancer',
         admin: '/admin'
       }[loginRole.value] || '/'
+      console.log('navigating to', dest)
       router.push(dest).catch(() => {})
     })
   }
 }
-//registers
+
 function handleRegister() {
-  validateEmail()
-  validatePassword()
-
-  if (registerEmailError.value || registerPasswordError.value) {
-    return
-  }
-
   const success = authStore.register(
     registerName.value,
     registerEmail.value,
     registerPassword.value,
     registerRole.value
   )
-
   if (!success) {
-    authError.value = 'A user with that email and role already exists'
+    alert('A user with that email and role already exists')
   } else {
+    console.log('registration succeeded role=', authStore.role)
     showAuth = false
     nextTick(() => {
       const dest = {
@@ -81,26 +68,6 @@ function handleRegister() {
     })
   }
 }
-  //validation email.
-function validateEmail() {
-  if (!registerEmail.value.includes('@')) {
-    registerEmailError.value = 'Email must contain @'
-  } else {
-    registerEmailError.value = ''
-  }
-}
-//password validation
-function validatePassword() {
-  if (registerPassword.value.length < 8) {
-    registerPasswordError.value = 'Password must be at least 8 characters'
-  } else if (registerPassword.value.length === 0) {
-    registerPasswordError.value = 'Password is required'
-  } else {
-    registerPasswordError.value = ''
-  }
-}
-
-
 </script>
 
 <template>
@@ -301,23 +268,9 @@ function validatePassword() {
         <!-- ================= LOGIN ================= -->
         <div v-if="authTab==='login'" style="display: flex; flex-direction: column; gap: var(--space-5);">
 
-          <div v-if="authError"
-     style="
-       background: rgba(255, 80, 80, 0.08);
-       border: 1px solid rgba(255, 80, 80, 0.25);
-       color: #ff6b6b;
-       padding: var(--space-3);
-       border-radius: var(--radius-lg);
-       font-size: var(--text-sm);
-       font-weight: 500;
-       margin-bottom: var(--space-2);
-     ">
-  {{ authError }}
-</div>
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">Email</label>
             <input v-model="loginEmail" type="email"
-            @input="authError=''" 
                    style="
                      background: var(--color-bg-secondary);
                      border: 1px solid var(--color-border);
@@ -338,8 +291,6 @@ function validatePassword() {
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">Password</label>
             <input v-model="loginPassword"
-               :type="showPassword ? 'text' : 'password'"
-                    @input="validatePassword; authError=''"
                    type="password"
                    style="
                      background: var(--color-bg-secondary);
@@ -356,27 +307,6 @@ function validatePassword() {
                    @focus="$event.target.style.borderColor = 'var(--color-accent)'; $event.target.style.boxShadow = '0 0 0 3px var(--color-accent-soft)'"
                    @blur="$event.target.style.borderColor = 'var(--color-border)'; $event.target.style.boxShadow = 'none'"
                    placeholder="••••••••" />
-
-                    <div style="position:relative">
-
-
-
-<span
-  @click="showPassword = !showPassword"
-  style="
-    position:absolute;
-    right:12px;
-    top:50%;
-    transform:translateY(-50%);
-    cursor:pointer;
-    font-size:14px;
-    opacity:0.7;
-  "
->
-  {{ showPassword ? '︶' : '👁' }}
-</span>
-
-</div>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
@@ -457,19 +387,7 @@ function validatePassword() {
 
         <!-- ================= REGISTER ================= -->
         <div v-if="authTab==='register'" style="display: flex; flex-direction: column; gap: var(--space-5);">
-<div v-if="authError =false"
-     style="
-       background: rgba(255, 80, 80, 0.08);
-       border: 1px solid rgba(255, 80, 80, 0.25);
-       color: #ff6b6b;
-       padding: var(--space-3);
-       border-radius: var(--radius-lg);
-       font-size: var(--text-sm);
-       font-weight: 500;
-       margin-bottom: var(--space-2);
-     ">
-  {{ authError }}
-</div>
+
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">Full Name</label>
             <input v-model="registerName"
@@ -495,7 +413,6 @@ function validatePassword() {
             <label style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">Email</label>
             <input v-model="registerEmail"
                    type="email"
-                   @input="validateEmail"
                    style="
                      background: var(--color-bg-secondary);
                      border: 1px solid var(--color-border);
@@ -511,16 +428,6 @@ function validatePassword() {
                    @focus="$event.target.style.borderColor = 'var(--color-accent)'; $event.target.style.boxShadow = '0 0 0 3px var(--color-accent-soft)'"
                    @blur="$event.target.style.borderColor = 'var(--color-border)'; $event.target.style.boxShadow = 'none'"
                    placeholder="you@company.com" />
-
-                   <div v-if="registerEmailError"
-     style="color:#ff6b6b;font-size:12px;">
-  {{ registerEmailError }}
-</div>
-
-<div v-else
-     style="color:var(--color-text-secondary);font-size:12px;">
-  Use a valid email address
-</div>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
@@ -553,9 +460,7 @@ function validatePassword() {
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-primary);">Password</label>
             <input v-model="registerPassword"
-                    :type="showPassword ? 'text' : 'password'"
-                    @input="validatePassword"
-                    
+                   type="password"
                    style="
                      background: var(--color-bg-secondary);
                      border: 1px solid var(--color-border);
@@ -571,38 +476,6 @@ function validatePassword() {
                    @focus="$event.target.style.borderColor = 'var(--color-accent)'; $event.target.style.boxShadow = '0 0 0 3px var(--color-accent-soft)'"
                    @blur="$event.target.style.borderColor = 'var(--color-border)'; $event.target.style.boxShadow = 'none'"
                    placeholder="••••••••" />
-
-                   <div style="position:relative">
-
-
-
-<span
-  @click="showPassword = !showPassword"
-  style="
-    position:absolute;
-    right:12px;
-    top:50%;
-    transform:translateY(-50%);
-    cursor:pointer;
-    font-size:14px;
-    opacity:0.7;
-  "
->
-  {{ showPassword ? '︶' : '👁' }}
-</span>
-
-</div>
-
-                   <div v-if="registerPasswordError"
-     style="color:#ff6b6b;font-size:12px;">
-  {{ registerPasswordError }}
-</div>
-
-<div v-else
-     style="color:var(--color-text-secondary);font-size:12px;">
-  Minimum 8 characters
-</div>
-
           </div>
 
           <div style="

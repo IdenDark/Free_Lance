@@ -148,9 +148,12 @@ const howItWorks = ref([
       </div>
     </nav>
 
-    <!-- ================= HERO ================= -->
-    <section class="pt-32 pb-24 px-6">
-      <div class="max-w-5xl mx-auto text-center">
+    <!-- ================= HERO with BACKGROUND ================= -->
+    <section class="pt-32 pb-24 px-6 noise-bg relative">
+      <!-- Optional overlay to make text more readable -->
+      <div class="absolute inset-0 bg-black/50 pointer-events-none"></div>
+      
+      <div class="max-w-5xl mx-auto text-center relative z-10">
 
         <div class="inline-flex items-center gap-2 badge badge-open mb-6">
           <span class="w-2 h-2 rounded-full bg-accent animate-pulse-dot"></span>
@@ -336,4 +339,3 @@ const howItWorks = ref([
 
   </div>
 </template>
-
