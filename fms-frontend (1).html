@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FreelanceHub — Freelancer Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Syne', 'sans-serif'],
+          body: ['DM Sans', 'sans-serif'],
+        },
+        colors: {
+          ink: '#0D0D12',
+          surface: '#13131A',
+          card: '#1A1A24',
+          border: '#2A2A38',
+          accent: '#C8F53E',
+          'accent-dim': '#9EBF2E',
+          muted: '#6B6B80',
+          soft: '#E8E8F0',
+        },
+        animation: {
+          'fade-up': 'fadeUp 0.5s ease forwards',
+          'slide-in': 'slideIn 0.4s ease forwards',
+          'pulse-dot': 'pulseDot 2s infinite',
+          'shimmer': 'shimmer 2s infinite',
+        },
+        keyframes: {
+          fadeUp: {
+            '0%': { opacity: '0', transform: 'translateY(20px)' },
+            '100%': { opacity: '1', transform: 'translateY(0)' },
+          },
+          slideIn: {
+            '0%': { opacity: '0', transform: 'translateX(-20px)' },
+            '100%': { opacity: '1', transform: 'translateX(0)' },
+          },
+          pulseDot: {
+            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+            '50%': { opacity: '0.5', transform: 'scale(0.85)' },
+          },
+          shimmer: {
+            '0%': { backgroundPosition: '-200% 0' },
+            '100%': { backgroundPosition: '200% 0' },
+          },
+        },
+      }
+    }
+  }
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0D0D12; font-family: 'DM Sans', sans-serif; color: #E8E8F0; overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #13131A; }
+  ::-webkit-scrollbar-thumb { background: #2A2A38; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #C8F53E; }
+
+  .glass { background: rgba(26,26,36,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+  .accent-glow { box-shadow: 0 0 20px rgba(200,245,62,0.25); }
+  .accent-glow-sm { box-shadow: 0 0 10px rgba(200,245,62,0.15); }
+  .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .card-hover:hover { transform: translateY(-3px); border-color: rgba(200,245,62,0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+
+  .noise-bg { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); }
+  
+  .gradient-mesh { background: radial-gradient(ellipse at 20% 50%, rgba(200,245,62,0.04) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(100,160,255,0.04) 0%, transparent 60%); }
+
+  .tab-active { color: #C8F53E; border-bottom: 2px solid #C8F53E; }
+  .tab-inactive { color: #6B6B80; border-bottom: 2px solid transparent; }
+  .tab-inactive:hover { color: #E8E8F0; border-color: rgba(255,255,255,0.2); }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; }
+  .badge-open { background: rgba(200,245,62,0.12); color: #C8F53E; border: 1px solid rgba(200,245,62,0.2); }
+  .badge-progress { background: rgba(100,160,255,0.12); color: #64A0FF; border: 1px solid rgba(100,160,255,0.2); }
+  .badge-completed { background: rgba(100,220,150,0.12); color: #64DC96; border: 1px solid rgba(100,220,150,0.2); }
+  .badge-pending { background: rgba(255,180,60,0.12); color: #FFB43C; border: 1px solid rgba(255,180,60,0.2); }
+
+  .stat-card { background: linear-gradient(135deg, #1A1A24 0%, #1E1E2C 100%); }
+
+  /* [v-cloak] { display: none; } */
+
+  .page-enter { animation: fadeUp 0.4s ease forwards; }
+
+  .sidebar-item { transition: all 0.2s ease; border-radius: 8px; }
+  .sidebar-item:hover { background: rgba(255,255,255,0.05); }
+  .sidebar-item.active { background: rgba(200,245,62,0.1); color: #C8F53E; }
+  .sidebar-item.active svg { stroke: #C8F53E; }
+
+  input, textarea, select {
+    background: #13131A;
+    border: 1px solid #2A2A38;
+    color: #E8E8F0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: #C8F53E; }
+  input::placeholder, textarea::placeholder { color: #6B6B80; }
+  select option { background: #1A1A24; }
+
+  .btn-primary { background: #C8F53E; color: #0D0D12; font-weight: 600; border-radius: 8px; padding: 10px 20px; font-family: 'Syne', sans-serif; transition: all 0.2s; cursor: pointer; border: none; }
+  .btn-primary:hover { background: #D4FF4A; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,245,62,0.3); }
+  .btn-outline { background: transparent; color: #E8E8F0; border: 1px solid #2A2A38; font-weight: 500; border-radius: 8px; padding: 10px 20px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; cursor: pointer; }
+  .btn-outline:hover { border-color: #C8F53E; color: #C8F53E; }
+
+  .progress-bar { background: #2A2A38; border-radius: 4px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #C8F53E, #9EBF2E); border-radius: 4px; transition: width 1s ease; }
+
+  .avatar { display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; border-radius: 50%; }
+
+  .shimmer-line { background: linear-gradient(90deg, #1A1A24 25%, #2A2A38 50%, #1A1A24 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+
+  @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0 !important; } }
+</style>
+</head>
+<body class="gradient-mesh noise-bg" v-cloak>
+
+<div id="app">
+
+  <!-- ======================== LANDING PAGE ======================== -->
+  <div v-if="page === 'landing'" class="min-h-screen page-enter">
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/5">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span class="font-display font-800 text-ink text-sm">F</span>
+          </div>
+          <span class="font-display font-700 text-lg tracking-tight">FreelanceHub</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#" class="text-sm text-muted hover:text-soft transition-colors">How it Works</a>
+          <a href="#" class="text-sm text-muted hover:text-soft transition-colors">Browse Jobs</a>
+          <a href="#" class="text-sm text-muted hover:text-soft transition-colors">Pricing</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button @click="openAuth('login')" class="btn-outline text-sm px-4 py-2">Sign In</button>
+          <button @click="openAuth('register')" class="btn-primary text-sm px-4 py-2">Get Started</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="pt-32 pb-24 px-6">
+      <div class="max-w-5xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 badge badge-open mb-6">
+          <span class="w-2 h-2 rounded-full bg-accent animate-pulse-dot"></span>
+          <span>1,200+ active projects this week</span>
+        </div>
+        <h1 class="font-display text-6xl md:text-7xl font-800 leading-[1.05] tracking-tight mb-6">
+          Where talent meets
+          <span class="block" style="color:#C8F53E;">opportunity.</span>
+        </h1>
+        <p class="text-muted text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          A modern platform connecting world-class freelancers with ambitious clients. Post projects, discover talent, and deliver great work — all in one place.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button @click="goToDashboard('client')" class="btn-primary px-8 py-3 text-base w-full sm:w-auto">
+            Hire a Freelancer →
+          </button>
+          <button @click="goToDashboard('freelancer')" class="btn-outline px-8 py-3 text-base w-full sm:w-auto">
+            Find Work
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats strip -->
+    <section class="border-y border-border py-12 px-6">
+      <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div v-for="s in stats" :key="s.label" class="text-center">
+          <div class="font-display text-3xl font-700 text-accent">{{ s.value }}</div>
+          <div class="text-muted text-sm mt-1">{{ s.label }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Jobs -->
+    <section class="py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-end justify-between mb-10">
+          <div>
+            <p class="text-accent text-sm font-display mb-2">OPEN OPPORTUNITIES</p>
+            <h2 class="font-display text-4xl font-700">Featured Projects</h2>
+          </div>
+          <button @click="goToDashboard('freelancer')" class="btn-outline text-sm">View All Jobs</button>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-for="job in featuredJobs" :key="job.id"
+            class="card-hover p-6 rounded-2xl border border-border"
+            style="background:#1A1A24;">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl" :style="`background:${job.color}20`">
+                {{ job.icon }}
+              </div>
+              <span class="badge badge-open">{{ job.type }}</span>
+            </div>
+            <h3 class="font-display font-600 text-base mb-1">{{ job.title }}</h3>
+            <p class="text-muted text-sm mb-4">{{ job.company }}</p>
+            <div class="flex flex-wrap gap-2 mb-5">
+              <span v-for="tag in job.tags" :key="tag" class="badge" style="background:#2A2A38;color:#9090A8;border:none;font-size:11px;">{{ tag }}</span>
+            </div>
+            <div class="flex items-center justify-between pt-4 border-t border-border">
+              <span class="font-display font-600 text-accent text-sm">{{ job.budget }}</span>
+              <button @click="goToDashboard('freelancer')" class="text-xs text-muted hover:text-soft transition-colors">Apply →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="py-20 px-6" style="background:#13131A;">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-14">
+          <p class="text-accent text-sm font-display mb-2">HOW IT WORKS</p>
+          <h2 class="font-display text-4xl font-700">Simple. Fast. Effective.</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div v-for="(step, i) in howItWorks" :key="i" class="relative">
+            <div class="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+              <span class="font-display font-700 text-accent">{{ i + 1 }}</span>
+            </div>
+            <h3 class="font-display font-600 text-lg mb-2">{{ step.title }}</h3>
+            <p class="text-muted text-sm leading-relaxed">{{ step.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-border py-8 px-6">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 bg-accent rounded flex items-center justify-center">
+            <span class="font-display font-800 text-ink text-xs">F</span>
+          </div>
+          <span class="font-display font-600 text-sm">FreelanceHub</span>
+        </div>
+        <p class="text-muted text-xs">© 2025 FreelanceHub. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ======================== AUTH MODAL ======================== -->
+  <div v-if="showAuth" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(13,13,18,0.9);backdrop-filter:blur(8px);">
+    <div class="glass rounded-2xl p-8 w-full max-w-md relative page-enter">
+      <button @click="showAuth=false" class="absolute top-4 right-4 text-muted hover:text-soft transition-colors text-xl">✕</button>
+      <div class="flex items-center gap-2 mb-8">
+        <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+          <span class="font-display font-800 text-ink text-sm">F</span>
+        </div>
+        <span class="font-display font-700">FreelanceHub</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-6 border-b border-border mb-8">
+        <button @click="authTab='login'" :class="authTab==='login'?'tab-active':'tab-inactive'" class="pb-3 text-sm font-500 transition-all">Sign In</button>
+        <button @click="authTab='register'" :class="authTab==='register'?'tab-active':'tab-inactive'" class="pb-3 text-sm font-500 transition-all">Create Account</button>
+      </div>
+
+      <div v-if="authTab==='login'">
+        <div class="space-y-4 mb-6">
+          <div><label class="text-xs text-muted mb-1 block">Email Address</label><input type="email" placeholder="you@company.com"/></div>
+          <div><label class="text-xs text-muted mb-1 block">Password</label><input type="password" placeholder="••••••••"/></div>
+        </div>
+        <div class="flex gap-3">
+          <button @click="goToDashboard('client')" class="btn-primary flex-1 text-sm">Login as Client</button>
+          <button @click="goToDashboard('freelancer')" class="btn-outline flex-1 text-sm">as Freelancer</button>
+        </div>
+        <p class="text-center text-muted text-xs mt-4"><a href="#" class="text-accent hover:underline">Forgot password?</a></p>
+      </div>
+
+      <div v-if="authTab==='register'">
+        <div class="space-y-4 mb-6">
+          <div><label class="text-xs text-muted mb-1 block">Full Name</label><input type="text" placeholder="Sarah Mitchell"/></div>
+          <div><label class="text-xs text-muted mb-1 block">Email Address</label><input type="email" placeholder="you@company.com"/></div>
+          <div>
+            <label class="text-xs text-muted mb-1 block">I am a...</label>
+            <select v-model="registerRole">
+              <option value="client">Client — I want to hire</option>
+              <option value="freelancer">Freelancer — I want to work</option>
+            </select>
+          </div>
+          <div><label class="text-xs text-muted mb-1 block">Password</label><input type="password" placeholder="••••••••"/></div>
+        </div>
+        <button @click="goToDashboard(registerRole)" class="btn-primary w-full text-sm">Create Account →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== CLIENT DASHBOARD ======================== -->
+  <div v-if="page === 'client'" class="flex min-h-screen page-enter">
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col" style="background:#13131A;">
+      <div class="p-6 border-b border-border">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span class="font-display font-800 text-ink text-sm">F</span>
+          </div>
+          <span class="font-display font-700">FreelanceHub</span>
+        </div>
+      </div>
+      <div class="p-4 border-b border-border">
+        <div class="flex items-center gap-3 p-3">
+          <div class="avatar w-10 h-10 text-sm text-ink" style="background:#C8F53E;">SM</div>
+          <div>
+            <div class="font-display font-600 text-sm">Sarah Mitchell</div>
+            <div class="text-muted text-xs">Client Account</div>
+          </div>
+        </div>
+      </div>
+      <nav class="p-4 flex-1 space-y-1">
+        <div v-for="item in clientNav" :key="item.key"
+          @click="clientTab=item.key"
+          :class="['sidebar-item cursor-pointer px-3 py-2.5 flex items-center gap-3 text-sm', clientTab===item.key?'active':'text-muted']">
+          <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
+          <span>{{ item.label }}</span>
+          <span v-if="item.badge" class="ml-auto badge badge-pending text-xs">{{ item.badge }}</span>
+        </div>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <button @click="page='landing'" class="sidebar-item w-full px-3 py-2.5 flex items-center gap-3 text-sm text-muted cursor-pointer">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content flex-1 ml-64 min-h-screen">
+      <!-- Topbar -->
+      <div class="sticky top-0 z-10 glass border-b border-border px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-700 text-lg">{{ clientNavLabel }}</h1>
+          <p class="text-muted text-xs">Saturday, February 21, 2026</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="relative w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-soft transition-colors">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center text-ink font-600" style="font-size:9px;">3</span>
+          </button>
+          <button @click="showPostJob=true" class="btn-primary text-sm px-4 py-2">+ Post Job</button>
+        </div>
+      </div>
+
+      <div class="p-8">
+
+        <!-- OVERVIEW TAB -->
+        <div v-if="clientTab==='overview'" class="page-enter space-y-8">
+          <!-- Stats -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="s in clientStats" :key="s.label" class="stat-card rounded-2xl p-5 border border-border">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-muted text-xs font-500">{{ s.label }}</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="`background:${s.color}15`">
+                  <span v-html="s.icon" :style="`color:${s.color}`"></span>
+                </div>
+              </div>
+              <div class="font-display font-700 text-2xl">{{ s.value }}</div>
+              <div class="text-xs mt-1" :style="`color:${s.color}`">{{ s.change }}</div>
+            </div>
+          </div>
+
+          <!-- Recent Jobs + Activity -->
+          <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 rounded-2xl border border-border p-6" style="background:#1A1A24;">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="font-display font-600">Active Job Posts</h3>
+                <button @click="clientTab='jobs'" class="text-accent text-xs hover:underline">View All</button>
+              </div>
+              <div class="space-y-3">
+                <div v-for="job in activeJobs" :key="job.id" class="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-border">
+                  <div>
+                    <div class="font-500 text-sm">{{ job.title }}</div>
+                    <div class="text-muted text-xs mt-0.5">{{ job.apps }} applicants · Posted {{ job.date }}</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span :class="'badge badge-'+job.status">{{ job.statusLabel }}</span>
+                    <button @click="clientTab='applications'" class="text-muted hover:text-soft text-xs transition-colors">Review →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+              <h3 class="font-display font-600 mb-5">Recent Activity</h3>
+              <div class="space-y-4">
+                <div v-for="a in recentActivity" :key="a.id" class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center" :style="`background:${a.color}15`">
+                    <span v-html="a.icon" :style="`color:${a.color};font-size:14px`"></span>
+                  </div>
+                  <div>
+                    <p class="text-xs text-soft leading-snug">{{ a.text }}</p>
+                    <p class="text-muted text-xs mt-0.5">{{ a.time }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JOBS TAB -->
+        <div v-if="clientTab==='jobs'" class="page-enter">
+          <div class="flex items-center gap-4 mb-6">
+            <input type="text" placeholder="Search job posts..." class="max-w-xs" v-model="jobSearch"/>
+            <select class="max-w-xs"><option>All Status</option><option>Open</option><option>In Progress</option><option>Completed</option></select>
+            <button @click="showPostJob=true" class="btn-primary ml-auto text-sm px-4 py-2">+ Post New Job</button>
+          </div>
+          <div class="grid gap-4">
+            <div v-for="job in filteredClientJobs" :key="job.id"
+              class="card-hover rounded-2xl border border-border p-6 flex flex-col md:flex-row md:items-center gap-4" style="background:#1A1A24;">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="font-display font-600">{{ job.title }}</h3>
+                  <span :class="'badge badge-'+job.status">{{ job.statusLabel }}</span>
+                </div>
+                <p class="text-muted text-sm mb-3">{{ job.desc }}</p>
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="tag in job.tags" :key="tag" class="badge" style="background:#2A2A38;color:#9090A8;border:none;font-size:11px;">{{ tag }}</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 min-w-max">
+                <div class="font-display font-700 text-accent">{{ job.budget }}</div>
+                <div class="text-muted text-xs">{{ job.apps }} applicants</div>
+                <div class="flex gap-2 mt-2">
+                  <button @click="clientTab='applications'" class="btn-outline text-xs px-3 py-1.5">View Apps</button>
+                  <button class="text-muted hover:text-soft transition-colors text-xs px-2">Edit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPLICATIONS TAB -->
+        <div v-if="clientTab==='applications'" class="page-enter">
+          <div class="rounded-2xl border border-border overflow-hidden" style="background:#1A1A24;">
+            <div class="p-6 border-b border-border flex items-center justify-between">
+              <h3 class="font-display font-600">Incoming Applications</h3>
+              <div class="flex gap-2">
+                <span class="badge badge-pending">8 New</span>
+              </div>
+            </div>
+            <div class="divide-y divide-border">
+              <div v-for="app in applications" :key="app.id" class="p-6 hover:bg-white/5 transition-colors">
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
+                  <div class="avatar w-12 h-12 text-sm flex-shrink-0 text-ink font-700" :style="`background:${app.color}`">{{ app.initials }}</div>
+                  <div class="flex-1">
+                    <div class="flex flex-col md:flex-row md:items-center gap-2 mb-1">
+                      <span class="font-display font-600">{{ app.name }}</span>
+                      <span class="text-muted text-xs">· Applied for <span class="text-soft">{{ app.job }}</span></span>
+                      <span :class="'badge badge-'+app.status+' ml-auto'">{{ app.statusLabel }}</span>
+                    </div>
+                    <p class="text-muted text-sm mb-3">{{ app.summary }}</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      <span v-for="tag in app.skills" :key="tag" class="badge" style="background:#2A2A38;color:#9090A8;border:none;font-size:11px;">{{ tag }}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-muted">
+                      <span>⭐ {{ app.rating }} rating</span>
+                      <span>{{ app.projects }} projects completed</span>
+                      <span class="font-display font-600 text-accent">{{ app.rate }}</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 flex-shrink-0">
+                    <button @click="hireFreelancer(app)" class="btn-primary text-xs px-4 py-2">Hire</button>
+                    <button class="btn-outline text-xs px-3 py-2">View Profile</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECTS TAB -->
+        <div v-if="clientTab==='projects'" class="page-enter space-y-4">
+          <div v-for="proj in projects" :key="proj.id" class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <div class="flex flex-col md:flex-row md:items-start gap-4 mb-5">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1">
+                  <h3 class="font-display font-600">{{ proj.title }}</h3>
+                  <span :class="'badge badge-'+proj.status">{{ proj.statusLabel }}</span>
+                </div>
+                <p class="text-muted text-sm">Freelancer: <span class="text-soft">{{ proj.freelancer }}</span> · Due {{ proj.due }}</p>
+              </div>
+              <div class="text-right">
+                <div class="font-display font-600 text-accent">{{ proj.budget }}</div>
+                <div class="text-muted text-xs">Fixed Price</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs text-muted">Progress</span>
+                <span class="text-xs font-600 text-accent">{{ proj.progress }}%</span>
+              </div>
+              <div class="progress-bar h-2">
+                <div class="progress-fill h-full" :style="`width:${proj.progress}%`"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-4">
+              <div class="flex gap-2">
+                <span v-for="m in proj.milestones" :key="m" class="badge" :class="proj.progress >= 80 ? 'badge-completed' : 'badge-progress'" style="font-size:11px;">{{ m }}</span>
+              </div>
+              <button class="btn-outline text-xs px-3 py-1.5">Message Freelancer</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ======================== FREELANCER DASHBOARD ======================== -->
+  <div v-if="page === 'freelancer'" class="flex min-h-screen page-enter">
+    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col" style="background:#13131A;">
+      <div class="p-6 border-b border-border">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span class="font-display font-800 text-ink text-sm">F</span>
+          </div>
+          <span class="font-display font-700">FreelanceHub</span>
+        </div>
+      </div>
+      <div class="p-4 border-b border-border">
+        <div class="flex items-center gap-3 p-3">
+          <div class="avatar w-10 h-10 text-sm text-ink" style="background:#64A0FF;">DO</div>
+          <div>
+            <div class="font-display font-600 text-sm">Daniel Osei</div>
+            <div class="text-muted text-xs">Freelancer</div>
+          </div>
+        </div>
+      </div>
+      <nav class="p-4 flex-1 space-y-1">
+        <div v-for="item in freelancerNav" :key="item.key"
+          @click="freelancerTab=item.key"
+          :class="['sidebar-item cursor-pointer px-3 py-2.5 flex items-center gap-3 text-sm', freelancerTab===item.key?'active':'text-muted']">
+          <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
+          <span>{{ item.label }}</span>
+          <span v-if="item.badge" class="ml-auto badge badge-pending text-xs">{{ item.badge }}</span>
+        </div>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <button @click="page='landing'" class="sidebar-item w-full px-3 py-2.5 flex items-center gap-3 text-sm text-muted cursor-pointer">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content flex-1 ml-64 min-h-screen">
+      <div class="sticky top-0 z-10 glass border-b border-border px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-700 text-lg">{{ freelancerNavLabel }}</h1>
+          <p class="text-muted text-xs">Saturday, February 21, 2026</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="badge badge-open">
+            <span class="w-2 h-2 rounded-full bg-accent animate-pulse-dot mr-1.5"></span>
+            Available for Work
+          </div>
+        </div>
+      </div>
+
+      <div class="p-8">
+
+        <!-- FREELANCER OVERVIEW -->
+        <div v-if="freelancerTab==='overview'" class="page-enter space-y-8">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="s in freelancerStats" :key="s.label" class="stat-card rounded-2xl p-5 border border-border">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-muted text-xs font-500">{{ s.label }}</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="`background:${s.color}15`">
+                  <span v-html="s.icon" :style="`color:${s.color}`"></span>
+                </div>
+              </div>
+              <div class="font-display font-700 text-2xl">{{ s.value }}</div>
+              <div class="text-xs mt-1" :style="`color:${s.color}`">{{ s.change }}</div>
+            </div>
+          </div>
+
+          <!-- Profile completion -->
+          <div class="rounded-2xl border border-border p-6 flex flex-col md:flex-row md:items-center gap-6" style="background:linear-gradient(135deg,#1A1A24,#1E2030)">
+            <div class="flex-1">
+              <h3 class="font-display font-600 mb-1">Complete Your Profile</h3>
+              <p class="text-muted text-sm mb-4">A complete profile gets 3× more responses from clients.</p>
+              <div class="progress-bar h-2.5 mb-2" style="max-width:300px;">
+                <div class="progress-fill h-full" style="width:72%"></div>
+              </div>
+              <p class="text-xs text-muted">72% complete — add portfolio samples to finish</p>
+            </div>
+            <button @click="freelancerTab='profile'" class="btn-primary text-sm px-6 py-2.5 flex-shrink-0">Complete Profile →</button>
+          </div>
+
+          <!-- Recommended jobs -->
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-display font-600">Recommended for You</h3>
+              <button @click="freelancerTab='browse'" class="text-accent text-xs hover:underline">Browse All</button>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div v-for="job in featuredJobs.slice(0,4)" :key="job.id"
+                class="card-hover p-5 rounded-2xl border border-border cursor-pointer" style="background:#1A1A24;" @click="freelancerTab='browse'">
+                <div class="flex items-start gap-3 mb-3">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" :style="`background:${job.color}20`">{{ job.icon }}</div>
+                  <div>
+                    <h4 class="font-display font-600 text-sm">{{ job.title }}</h4>
+                    <p class="text-muted text-xs">{{ job.company }}</p>
+                  </div>
+                  <span class="badge badge-open ml-auto text-xs">{{ job.type }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex gap-1.5 flex-wrap">
+                    <span v-for="tag in job.tags.slice(0,2)" :key="tag" class="badge" style="background:#2A2A38;color:#9090A8;border:none;font-size:10px;">{{ tag }}</span>
+                  </div>
+                  <span class="font-display font-600 text-accent text-sm">{{ job.budget }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BROWSE JOBS -->
+        <div v-if="freelancerTab==='browse'" class="page-enter">
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input type="text" placeholder="Search jobs, skills, keywords..." class="flex-1" v-model="browseSearch"/>
+            <select class="md:w-48"><option>All Categories</option><option>Development</option><option>Design</option><option>Writing</option></select>
+            <select class="md:w-40"><option>Any Budget</option><option>Under $500</option><option>$500–$2000</option><option>$2000+</option></select>
+          </div>
+          <div class="grid gap-4">
+            <div v-for="job in allJobs" :key="job.id"
+              class="card-hover rounded-2xl border border-border p-6" style="background:#1A1A24;">
+              <div class="flex flex-col md:flex-row md:items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" :style="`background:${job.color}20`">{{ job.icon }}</div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-1 flex-wrap">
+                    <h3 class="font-display font-600">{{ job.title }}</h3>
+                    <span class="badge badge-open">{{ job.type }}</span>
+                  </div>
+                  <p class="text-muted text-xs mb-3">{{ job.company }} · Posted {{ job.posted }}</p>
+                  <p class="text-soft text-sm mb-4 leading-relaxed">{{ job.desc }}</p>
+                  <div class="flex flex-wrap gap-2">
+                    <span v-for="tag in job.tags" :key="tag" class="badge" style="background:#2A2A38;color:#9090A8;border:none;font-size:11px;">{{ tag }}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-3 min-w-max">
+                  <div class="font-display font-700 text-accent text-lg">{{ job.budget }}</div>
+                  <div class="text-muted text-xs text-right">{{ job.duration }}</div>
+                  <button @click="applyToJob(job)" class="btn-primary text-sm px-5 py-2">Apply Now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY APPLICATIONS -->
+        <div v-if="freelancerTab==='myapps'" class="page-enter space-y-4">
+          <div class="flex gap-3 flex-wrap mb-2">
+            <span class="badge badge-open">2 Under Review</span>
+            <span class="badge badge-pending">1 Shortlisted</span>
+            <span class="badge badge-completed">3 Completed</span>
+          </div>
+          <div v-for="app in myApplications" :key="app.id" class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <div class="flex flex-col md:flex-row md:items-center gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1 flex-wrap">
+                  <h3 class="font-display font-600">{{ app.job }}</h3>
+                  <span :class="'badge badge-'+app.status">{{ app.statusLabel }}</span>
+                </div>
+                <p class="text-muted text-xs mb-3">{{ app.company }} · Applied {{ app.applied }}</p>
+                <!-- Status timeline -->
+                <div class="flex items-center gap-2 text-xs text-muted">
+                  <div class="flex items-center gap-1" v-for="(step, i) in app.timeline" :key="i">
+                    <div class="w-2 h-2 rounded-full" :class="step.done ? 'bg-accent' : 'bg-border'"></div>
+                    <span :class="step.done ? 'text-soft' : 'text-muted'">{{ step.label }}</span>
+                    <span v-if="i < app.timeline.length-1" class="text-border mx-1">→</span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-display font-600 text-accent">{{ app.rate }}</div>
+                <div class="text-muted text-xs">Proposed Rate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div v-if="freelancerTab==='profile'" class="page-enter max-w-2xl space-y-6">
+          <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <h3 class="font-display font-600 mb-5">Personal Information</h3>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="avatar w-16 h-16 text-lg text-ink font-700" style="background:#64A0FF;">DO</div>
+              <div>
+                <button class="btn-outline text-xs px-4 py-2">Upload Photo</button>
+                <p class="text-muted text-xs mt-1">JPG, PNG max 2MB</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="text-xs text-muted mb-1 block">First Name</label><input value="Daniel"/></div>
+              <div><label class="text-xs text-muted mb-1 block">Last Name</label><input value="Osei"/></div>
+              <div class="col-span-2"><label class="text-xs text-muted mb-1 block">Professional Headline</label><input value="Full-Stack Web Developer · React & Node.js Specialist"/></div>
+              <div class="col-span-2"><label class="text-xs text-muted mb-1 block">Bio</label><textarea rows="3">Passionate computer science student and part-time freelance developer with 2+ years building scalable web applications for clients globally.</textarea></div>
+              <div><label class="text-xs text-muted mb-1 block">Hourly Rate</label><input value="$35"/></div>
+              <div><label class="text-xs text-muted mb-1 block">Country</label><input value="Ghana, Accra"/></div>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <h3 class="font-display font-600 mb-5">Skills</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span v-for="skill in freelancerSkills" :key="skill" class="badge badge-progress cursor-pointer hover:bg-red-500/10">{{ skill }} ✕</span>
+            </div>
+            <input placeholder="Add a skill..." />
+          </div>
+          <button class="btn-primary px-8 py-3">Save Profile</button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ======================== ADMIN DASHBOARD ======================== -->
+  <div v-if="page === 'admin'" class="flex min-h-screen page-enter">
+    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col" style="background:#13131A;">
+      <div class="p-6 border-b border-border">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span class="font-display font-800 text-ink text-sm">F</span>
+          </div>
+          <span class="font-display font-700">FreelanceHub</span>
+        </div>
+      </div>
+      <div class="p-4 border-b border-border">
+        <div class="flex items-center gap-3 p-3">
+          <div class="avatar w-10 h-10 text-sm text-ink" style="background:#FF6B6B;">PN</div>
+          <div>
+            <div class="font-display font-600 text-sm">Priya Nair</div>
+            <div class="text-muted text-xs">Administrator</div>
+          </div>
+        </div>
+      </div>
+      <nav class="p-4 flex-1 space-y-1">
+        <div v-for="item in adminNav" :key="item.key"
+          @click="adminTab=item.key"
+          :class="['sidebar-item cursor-pointer px-3 py-2.5 flex items-center gap-3 text-sm', adminTab===item.key?'active':'text-muted']">
+          <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
+          <span>{{ item.label }}</span>
+          <span v-if="item.badge" class="ml-auto badge badge-pending text-xs">{{ item.badge }}</span>
+        </div>
+      </nav>
+      <div class="p-4 border-t border-border">
+        <button @click="page='landing'" class="sidebar-item w-full px-3 py-2.5 flex items-center gap-3 text-sm text-muted cursor-pointer">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content flex-1 ml-64 min-h-screen">
+      <div class="sticky top-0 z-10 glass border-b border-border px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-700 text-lg">{{ adminNavLabel }}</h1>
+          <p class="text-muted text-xs">System Administrator · Full Access</p>
+        </div>
+        <div class="badge badge-completed">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-dot mr-1.5"></span>
+          System Healthy
+        </div>
+      </div>
+
+      <div class="p-8">
+        <!-- ADMIN OVERVIEW -->
+        <div v-if="adminTab==='overview'" class="page-enter space-y-8">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="s in adminStats" :key="s.label" class="stat-card rounded-2xl p-5 border border-border">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-muted text-xs font-500">{{ s.label }}</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="`background:${s.color}15`">
+                  <span v-html="s.icon" :style="`color:${s.color}`"></span>
+                </div>
+              </div>
+              <div class="font-display font-700 text-2xl">{{ s.value }}</div>
+              <div class="text-xs mt-1" :style="`color:${s.color}`">{{ s.change }}</div>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="grid md:grid-cols-3 gap-4">
+            <div @click="adminTab='users'" class="card-hover cursor-pointer rounded-2xl border border-border p-6 text-center" style="background:#1A1A24;">
+              <div class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-3">
+                <svg width="22" height="22" fill="none" stroke="#C8F53E" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h4 class="font-display font-600 mb-1">User Management</h4>
+              <p class="text-muted text-xs">Review & manage all accounts</p>
+            </div>
+            <div @click="adminTab='reports'" class="card-hover cursor-pointer rounded-2xl border border-border p-6 text-center" style="background:#1A1A24;">
+              <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-3">
+                <svg width="22" height="22" fill="none" stroke="#FF6B6B" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h4 class="font-display font-600 mb-1">Pending Reports</h4>
+              <p class="text-muted text-xs">5 reports need attention</p>
+            </div>
+            <div @click="adminTab='system'" class="card-hover cursor-pointer rounded-2xl border border-border p-6 text-center" style="background:#1A1A24;">
+              <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
+                <svg width="22" height="22" fill="none" stroke="#64A0FF" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <h4 class="font-display font-600 mb-1">System Health</h4>
+              <p class="text-muted text-xs">Monitor platform metrics</p>
+            </div>
+          </div>
+
+          <!-- Recent users -->
+          <div class="rounded-2xl border border-border" style="background:#1A1A24;">
+            <div class="p-5 border-b border-border flex items-center justify-between">
+              <h3 class="font-display font-600">Recent Registrations</h3>
+              <button @click="adminTab='users'" class="text-accent text-xs hover:underline">View All</button>
+            </div>
+            <div class="divide-y divide-border">
+              <div v-for="u in adminUsers.slice(0,4)" :key="u.id" class="px-5 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
+                <div class="avatar w-9 h-9 text-xs text-ink flex-shrink-0" :style="`background:${u.color}`">{{ u.initials }}</div>
+                <div class="flex-1">
+                  <div class="font-500 text-sm">{{ u.name }}</div>
+                  <div class="text-muted text-xs">{{ u.email }}</div>
+                </div>
+                <span class="badge" :class="u.role==='Client'?'badge-progress':'badge-open'" style="font-size:11px;">{{ u.role }}</span>
+                <span :class="'badge badge-'+u.status" style="font-size:11px;">{{ u.statusLabel }}</span>
+                <div class="text-muted text-xs">{{ u.joined }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN USERS -->
+        <div v-if="adminTab==='users'" class="page-enter">
+          <div class="flex gap-4 mb-5 flex-wrap">
+            <input type="text" placeholder="Search users..." class="max-w-xs"/>
+            <select class="w-40"><option>All Roles</option><option>Client</option><option>Freelancer</option></select>
+            <select class="w-40"><option>All Status</option><option>Active</option><option>Suspended</option></select>
+          </div>
+          <div class="rounded-2xl border border-border overflow-hidden" style="background:#1A1A24;">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-border">
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">User</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Role</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Status</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Joined</th>
+                  <th class="text-left px-5 py-3 text-xs text-muted font-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                <tr v-for="u in adminUsers" :key="u.id" class="hover:bg-white/5 transition-colors">
+                  <td class="px-5 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="avatar w-8 h-8 text-xs text-ink flex-shrink-0" :style="`background:${u.color}`">{{ u.initials }}</div>
+                      <div>
+                        <div class="font-500 text-sm">{{ u.name }}</div>
+                        <div class="text-muted text-xs">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4"><span class="badge" :class="u.role==='Client'?'badge-progress':'badge-open'" style="font-size:11px;">{{ u.role }}</span></td>
+                  <td class="px-5 py-4"><span :class="'badge badge-'+u.status" style="font-size:11px;">{{ u.statusLabel }}</span></td>
+                  <td class="px-5 py-4 text-muted text-xs">{{ u.joined }}</td>
+                  <td class="px-5 py-4">
+                    <div class="flex gap-2">
+                      <button class="text-xs text-muted hover:text-soft transition-colors">View</button>
+                      <button class="text-xs text-accent hover:underline">Edit</button>
+                      <button class="text-xs text-red-400 hover:underline">Suspend</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div v-if="adminTab==='reports'" class="page-enter space-y-4">
+          <div v-for="r in adminReports" :key="r.id" class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(255,107,107,0.1)">
+                <svg width="18" height="18" fill="none" stroke="#FF6B6B" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1 flex-wrap">
+                  <h3 class="font-display font-600 text-sm">{{ r.title }}</h3>
+                  <span :class="'badge badge-'+r.priority">{{ r.priorityLabel }}</span>
+                </div>
+                <p class="text-muted text-sm mb-2">{{ r.desc }}</p>
+                <div class="text-xs text-muted">Reported by <span class="text-soft">{{ r.reporter }}</span> · {{ r.time }}</div>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="btn-primary text-xs px-3 py-1.5">Resolve</button>
+                <button class="btn-outline text-xs px-3 py-1.5">Dismiss</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SYSTEM -->
+        <div v-if="adminTab==='system'" class="page-enter space-y-6">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div v-for="m in systemMetrics" :key="m.label" class="rounded-2xl border border-border p-5" style="background:#1A1A24;">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-muted text-sm">{{ m.label }}</span>
+                <span class="font-display font-600" :style="`color:${m.color}`">{{ m.value }}</span>
+              </div>
+              <div class="progress-bar h-2">
+                <div class="h-full rounded" :style="`width:${m.pct}%;background:${m.color}`"></div>
+              </div>
+              <p class="text-muted text-xs mt-2">{{ m.desc }}</p>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+            <h3 class="font-display font-600 mb-4">System Log</h3>
+            <div class="space-y-2 font-mono text-xs">
+              <div v-for="log in systemLogs" :key="log.id" class="flex items-center gap-3">
+                <span class="text-muted w-40 flex-shrink-0">{{ log.time }}</span>
+                <span class="w-16 flex-shrink-0" :style="`color:${log.color}`">{{ log.level }}</span>
+                <span class="text-soft">{{ log.msg }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- POST JOB MODAL -->
+  <div v-if="showPostJob" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(13,13,18,0.9);backdrop-filter:blur(8px);">
+    <div class="glass rounded-2xl p-8 w-full max-w-lg relative page-enter max-h-[90vh] overflow-y-auto">
+      <button @click="showPostJob=false" class="absolute top-4 right-4 text-muted hover:text-soft transition-colors text-xl">✕</button>
+      <h2 class="font-display font-700 text-xl mb-6">Post a New Job</h2>
+      <div class="space-y-4">
+        <div><label class="text-xs text-muted mb-1 block">Job Title</label><input placeholder="e.g. React Developer for E-Commerce Rebuild"/></div>
+        <div><label class="text-xs text-muted mb-1 block">Category</label>
+          <select><option>Development</option><option>Design</option><option>Writing & Content</option><option>Marketing</option><option>Data & Analytics</option></select>
+        </div>
+        <div><label class="text-xs text-muted mb-1 block">Job Description</label><textarea rows="4" placeholder="Describe the project, deliverables, and requirements clearly..."></textarea></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="text-xs text-muted mb-1 block">Budget</label><input placeholder="$500 – $2,000"/></div>
+          <div><label class="text-xs text-muted mb-1 block">Duration</label>
+            <select><option>Less than 1 week</option><option>1–4 weeks</option><option>1–3 months</option><option>3+ months</option></select>
+          </div>
+        </div>
+        <div><label class="text-xs text-muted mb-1 block">Required Skills</label><input placeholder="React, Node.js, PostgreSQL..."/></div>
+        <div><label class="text-xs text-muted mb-1 block">Application Deadline</label><input type="date" style="color:#9090A8"/></div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button @click="submitJob()" class="btn-primary flex-1">Post Job →</button>
+        <button @click="showPostJob=false" class="btn-outline px-5">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST -->
+  <div v-if="toast" class="fixed bottom-6 right-6 z-50 glass rounded-xl px-5 py-4 flex items-center gap-3 page-enter border border-accent/20">
+    <div class="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center">
+      <span class="text-accent text-lg">✓</span>
+    </div>
+    <span class="text-sm font-500">{{ toast }}</span>
+  </div>
+
+  <!-- DEMO SWITCHER -->
+  <div class="fixed bottom-6 left-6 z-50">
+    <div class="glass rounded-2xl p-4 border border-border">
+      <p class="text-muted text-xs mb-3 font-display">🎭 Demo Switcher</p>
+      <div class="flex flex-col gap-2">
+        <button @click="goToDashboard('client')" :class="page==='client'?'btn-primary':'btn-outline'" class="text-xs px-3 py-2">Client View</button>
+        <button @click="goToDashboard('freelancer')" :class="page==='freelancer'?'btn-primary':'btn-outline'" class="text-xs px-3 py-2">Freelancer View</button>
+        <button @click="goToDashboard('admin')" :class="page==='admin'?'btn-primary':'btn-outline'" class="text-xs px-3 py-2">Admin View</button>
+        <button @click="page='landing'" :class="page==='landing'?'btn-primary':'btn-outline'" class="text-xs px-3 py-2">Landing</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      page: 'landing',
+      showAuth: false,
+      authTab: 'login',
+      registerRole: 'client',
+      clientTab: 'overview',
+      freelancerTab: 'overview',
+      adminTab: 'overview',
+      showPostJob: false,
+      toast: null,
+      jobSearch: '',
+      browseSearch: '',
+
+      stats: [
+        { value: '42,000+', label: 'Registered Users' },
+        { value: '8,500+', label: 'Projects Completed' },
+        { value: '1,200+', label: 'Active Jobs' },
+        { value: '98%', label: 'Satisfaction Rate' },
+      ],
+
+      howItWorks: [
+        { title: 'Post Your Project', desc: 'Describe your needs, set your budget, and publish your job in under 5 minutes.' },
+        { title: 'Review Applicants', desc: 'Browse proposals from qualified freelancers, view portfolios, and shortlist the best fit.' },
+        { title: 'Deliver & Grow', desc: 'Work with your chosen freelancer, track progress, and deliver outstanding results.' },
+      ],
+
+      clientNav: [
+        { key: 'overview', label: 'Overview', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+        { key: 'jobs', label: 'My Jobs', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>' },
+        { key: 'applications', label: 'Applications', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>', badge: '8' },
+        { key: 'projects', label: 'Projects', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
+      ],
+
+      freelancerNav: [
+        { key: 'overview', label: 'Overview', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+        { key: 'browse', label: 'Browse Jobs', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' },
+        { key: 'myapps', label: 'My Applications', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', badge: '3' },
+        { key: 'profile', label: 'My Profile', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
+      ],
+
+      adminNav: [
+        { key: 'overview', label: 'Dashboard', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+        { key: 'users', label: 'Manage Users', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>' },
+        { key: 'reports', label: 'Reports', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>', badge: '5' },
+        { key: 'system', label: 'System', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
+      ],
+
+      clientStats: [
+        { label: 'Active Jobs', value: '4', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>', color: '#C8F53E', change: '+2 this week' },
+        { label: 'Total Applications', value: '28', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>', color: '#64A0FF', change: '8 new today' },
+        { label: 'Active Projects', value: '2', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', color: '#64DC96', change: 'On track' },
+        { label: 'Spent This Month', value: '$4,200', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', color: '#FFB43C', change: '-12% vs last month' },
+      ],
+
+      freelancerStats: [
+        { label: 'Applications Sent', value: '12', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>', color: '#C8F53E', change: '+3 this week' },
+        { label: 'Projects Won', value: '5', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', color: '#64A0FF', change: '83% success rate' },
+        { label: 'Total Earned', value: '$8,450', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', color: '#64DC96', change: '+$1,200 this month' },
+        { label: 'Profile Views', value: '143', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>', color: '#FFB43C', change: '+28% this week' },
+      ],
+
+      adminStats: [
+        { label: 'Total Users', value: '42,381', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>', color: '#C8F53E', change: '+142 today' },
+        { label: 'Active Jobs', value: '1,247', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>', color: '#64A0FF', change: '+38 this week' },
+        { label: 'Pending Reports', value: '5', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>', color: '#FF6B6B', change: '2 high priority' },
+        { label: 'Platform Revenue', value: '$84,220', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', color: '#64DC96', change: '+22% this month' },
+      ],
+
+      featuredJobs: [
+        { id: 1, title: 'React Developer for SaaS Dashboard', company: 'TechFlow Inc.', icon: '⚛️', color: '#64A0FF', type: 'Remote', tags: ['React', 'TypeScript', 'Tailwind'], budget: '$2,500 – $4,000', posted: '2d ago', duration: '1–2 months', desc: 'We need an experienced React developer to rebuild our analytics dashboard with modern UI and improved performance.' },
+        { id: 2, title: 'Brand Identity & Logo Design', company: 'Nomad Studio', icon: '🎨', color: '#FF6B6B', type: 'Remote', tags: ['Figma', 'Branding', 'Illustration'], budget: '$800 – $1,500', posted: '1d ago', duration: '2–4 weeks', desc: 'Looking for a creative brand designer to craft a complete visual identity for our new fintech startup.' },
+        { id: 3, title: 'Technical Content Writer — DevOps', company: 'CloudStack', icon: '📝', color: '#C8F53E', type: 'Remote', tags: ['Writing', 'DevOps', 'Kubernetes'], budget: '$500 – $1,200', posted: '3d ago', duration: '1 month', desc: 'Write in-depth technical tutorials and blog posts covering DevOps tools and cloud infrastructure.' },
+        { id: 4, title: 'Mobile App Developer (Flutter)', company: 'HealthTrack', icon: '📱', color: '#64DC96', type: 'Remote', tags: ['Flutter', 'Dart', 'Firebase'], budget: '$3,000 – $6,000', posted: '5d ago', duration: '2–3 months', desc: 'Build a cross-platform health tracking mobile application with real-time sync and offline support.' },
+        { id: 5, title: 'SEO & Digital Marketing Specialist', company: 'GrowthOS', icon: '📊', color: '#FFB43C', type: 'Remote', tags: ['SEO', 'Analytics', 'Ads'], budget: '$600 – $1,000/mo', posted: '1d ago', duration: 'Ongoing', desc: 'Drive organic growth through technical SEO, content strategy, and paid acquisition campaigns.' },
+        { id: 6, title: 'Data Analyst — Python & SQL', company: 'DataNova', icon: '🔬', color: '#A78BFA', type: 'Remote', tags: ['Python', 'SQL', 'Tableau'], budget: '$2,000 – $3,500', posted: '4d ago', duration: '6 weeks', desc: 'Analyze large datasets, build dashboards, and deliver actionable business insights from raw data.' },
+      ],
+
+      activeJobs: [
+        { id: 1, title: 'React Developer for SaaS Dashboard', apps: 12, date: '3 days ago', status: 'open', statusLabel: 'Open' },
+        { id: 2, title: 'Brand Identity & Logo Design', apps: 7, date: '5 days ago', status: 'progress', statusLabel: 'In Progress' },
+        { id: 3, title: 'Technical Content Writer', apps: 4, date: '1 week ago', status: 'open', statusLabel: 'Open' },
+      ],
+
+      recentActivity: [
+        { id: 1, text: 'Daniel Osei applied for React Developer role', time: '2 hours ago', icon: '👤', color: '#64A0FF' },
+        { id: 2, text: 'Brand Identity project marked 60% complete', time: '5 hours ago', icon: '✓', color: '#64DC96' },
+        { id: 3, text: '3 new applications on Technical Content Writer', time: 'Yesterday', icon: '📩', color: '#C8F53E' },
+        { id: 4, text: 'Payment of $1,200 released to Amara Diallo', time: '2 days ago', icon: '💸', color: '#FFB43C' },
+      ],
+
+      applications: [
+        { id: 1, name: 'Daniel Osei', initials: 'DO', color: '#64A0FF', job: 'React Developer', summary: 'CS student & freelance developer with 2+ years in React/Node.js. Delivered 12+ production web apps.', skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'], rating: '4.9', projects: 12, rate: '$35/hr', status: 'pending', statusLabel: 'New' },
+        { id: 2, name: 'Amara Diallo', initials: 'AD', color: '#C8F53E', job: 'React Developer', summary: 'Senior frontend engineer with 5 years experience. Specialized in scalable SaaS products.', skills: ['React', 'Vue', 'AWS', 'GraphQL'], rating: '5.0', projects: 34, rate: '$65/hr', status: 'progress', statusLabel: 'Shortlisted' },
+        { id: 3, name: 'Ji-Woo Kim', initials: 'JK', color: '#FF6B6B', job: 'React Developer', summary: 'Full-stack developer focused on performance. Contributor to several open-source React libraries.', skills: ['React', 'Next.js', 'Redis', 'Docker'], rating: '4.8', projects: 22, rate: '$50/hr', status: 'pending', statusLabel: 'New' },
+      ],
+
+      projects: [
+        { id: 1, title: 'Brand Identity & Logo Design', freelancer: 'Amara Diallo', due: 'Mar 5, 2026', budget: '$1,200', status: 'progress', statusLabel: 'In Progress', progress: 60, milestones: ['Concepts', 'Revisions', 'Final Delivery'] },
+        { id: 2, title: 'Technical Content Writing — Q1 Series', freelancer: 'Olu Bakare', due: 'Feb 28, 2026', budget: '$900', status: 'progress', statusLabel: 'Under Review', progress: 85, milestones: ['Draft 1', 'Edits', 'Publication'] },
+      ],
+
+      allJobs: [],
+
+      myApplications: [
+        { id: 1, job: 'React Developer for SaaS Dashboard', company: 'TechFlow Inc.', applied: 'Feb 18, 2026', rate: '$35/hr', status: 'pending', statusLabel: 'Shortlisted', timeline: [{label:'Submitted',done:true},{label:'Under Review',done:true},{label:'Shortlisted',done:true},{label:'Decision',done:false}] },
+        { id: 2, job: 'Flutter Mobile App Developer', company: 'HealthTrack', applied: 'Feb 15, 2026', rate: '$40/hr', status: 'progress', statusLabel: 'Under Review', timeline: [{label:'Submitted',done:true},{label:'Under Review',done:true},{label:'Shortlisted',done:false},{label:'Decision',done:false}] },
+        { id: 3, job: 'Data Analyst — Python & SQL', company: 'DataNova', applied: 'Feb 10, 2026', rate: '$45/hr', status: 'completed', statusLabel: 'Not Selected', timeline: [{label:'Submitted',done:true},{label:'Under Review',done:true},{label:'Shortlisted',done:false},{label:'Decision',done:true}] },
+      ],
+
+      freelancerSkills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'REST APIs', 'Git', 'Python', 'Docker'],
+
+      clientJobsList: [
+        { id: 1, title: 'React Developer for SaaS Dashboard', desc: 'Rebuild our analytics dashboard with modern React and TypeScript stack.', tags: ['React', 'TypeScript', 'Tailwind'], budget: '$2,500 – $4,000', apps: 12, status: 'open', statusLabel: 'Open' },
+        { id: 2, title: 'Brand Identity & Logo Design', desc: 'Complete visual identity for fintech startup including logo, colors, typography.', tags: ['Figma', 'Branding'], budget: '$800 – $1,500', apps: 7, status: 'progress', statusLabel: 'In Progress' },
+        { id: 3, title: 'Technical Content Writer — DevOps', desc: 'In-depth tutorials on Kubernetes, Docker, and cloud infrastructure topics.', tags: ['Writing', 'DevOps'], budget: '$500 – $1,200', apps: 4, status: 'open', statusLabel: 'Open' },
+        { id: 4, title: 'WordPress Speed Optimization', desc: 'Optimize our e-commerce WordPress site for Core Web Vitals and page speed.', tags: ['WordPress', 'Performance', 'PHP'], budget: '$300 – $600', apps: 9, status: 'completed', statusLabel: 'Completed' },
+      ],
+
+      adminUsers: [
+        { id: 1, name: 'Sarah Mitchell', email: 'sarah@techflow.io', initials: 'SM', color: '#C8F53E', role: 'Client', status: 'completed', statusLabel: 'Active', joined: 'Jan 14, 2026' },
+        { id: 2, name: 'Daniel Osei', email: 'daniel@gmail.com', initials: 'DO', color: '#64A0FF', role: 'Freelancer', status: 'completed', statusLabel: 'Active', joined: 'Feb 2, 2026' },
+        { id: 3, name: 'Amara Diallo', email: 'amara@design.co', initials: 'AD', color: '#FF6B6B', role: 'Freelancer', status: 'completed', statusLabel: 'Active', joined: 'Jan 28, 2026' },
+        { id: 4, name: 'Ji-Woo Kim', email: 'jiwoo@dev.kr', initials: 'JK', color: '#64DC96', role: 'Freelancer', status: 'pending', statusLabel: 'Pending', joined: 'Feb 19, 2026' },
+        { id: 5, name: 'Marcus Thompson', email: 'marcus@growthco.com', initials: 'MT', color: '#FFB43C', role: 'Client', status: 'progress', statusLabel: 'Suspended', joined: 'Dec 5, 2025' },
+      ],
+
+      adminReports: [
+        { id: 1, title: 'Misleading job posting — missing budget info', desc: 'User reported that job #4421 lists vague budget and appears to collect emails without intent to hire.', reporter: 'Daniel Osei', time: '2 hours ago', priority: 'pending', priorityLabel: 'High Priority' },
+        { id: 2, title: 'Harassment via internal messaging', desc: 'Freelancer reports inappropriate messages from client after application was declined.', reporter: 'Amara Diallo', time: '6 hours ago', priority: 'pending', priorityLabel: 'High Priority' },
+        { id: 3, title: 'Duplicate account detected', desc: 'System flagged same IP/email pattern for two accounts registered within 10 minutes.', reporter: 'System', time: 'Yesterday', priority: 'progress', priorityLabel: 'Medium' },
+        { id: 4, title: 'Inaccurate portfolio samples', desc: 'Client reports that freelancer portfolio samples may not be original work.', reporter: 'Sarah Mitchell', time: '2 days ago', priority: 'open', priorityLabel: 'Low' },
+        { id: 5, title: 'Payment dispute — project #8812', desc: 'Client claims deliverable was not as agreed; freelancer disputes the assessment.', reporter: 'Marcus Thompson', time: '3 days ago', priority: 'pending', priorityLabel: 'High Priority' },
+      ],
+
+      systemMetrics: [
+        { label: 'Server CPU Usage', value: '34%', pct: 34, color: '#64DC96', desc: 'Within normal operating range' },
+        { label: 'Memory Utilization', value: '61%', pct: 61, color: '#FFB43C', desc: 'Moderate — monitor if increases' },
+        { label: 'Database Storage', value: '48%', pct: 48, color: '#64A0FF', desc: '240 GB used of 500 GB' },
+        { label: 'API Response Rate', value: '99.8%', pct: 99, color: '#C8F53E', desc: 'Excellent uptime this month' },
+      ],
+
+      systemLogs: [
+        { id: 1, time: '2026-02-21 14:02', level: 'INFO', msg: 'User registration: daniel.osei@gmail.com (Freelancer)', color: '#64A0FF' },
+        { id: 2, time: '2026-02-21 13:58', level: 'INFO', msg: 'Job posted: "React Developer for SaaS Dashboard" by TechFlow Inc.', color: '#64A0FF' },
+        { id: 3, time: '2026-02-21 13:45', level: 'WARN', msg: 'Unusual login attempt from IP 192.168.44.21', color: '#FFB43C' },
+        { id: 4, time: '2026-02-21 13:30', level: 'INFO', msg: 'Report #5 submitted by marcus@growthco.com', color: '#64A0FF' },
+        { id: 5, time: '2026-02-21 12:10', level: 'ERROR', msg: 'Email delivery failed for user #3492 — retrying', color: '#FF6B6B' },
+        { id: 6, time: '2026-02-21 11:55', level: 'INFO', msg: 'Database backup completed successfully (240 GB)', color: '#64DC96' },
+      ],
+    }
+  },
+
+  computed: {
+    clientNavLabel() {
+      const m = this.clientNav.find(n => n.key === this.clientTab);
+      return m ? m.label : '';
+    },
+    freelancerNavLabel() {
+      const m = this.freelancerNav.find(n => n.key === this.freelancerTab);
+      return m ? m.label : '';
+    },
+    adminNavLabel() {
+      const m = this.adminNav.find(n => n.key === this.adminTab);
+      return m ? m.label : '';
+    },
+    filteredClientJobs() {
+      if (!this.jobSearch) return this.clientJobsList;
+      return this.clientJobsList.filter(j => j.title.toLowerCase().includes(this.jobSearch.toLowerCase()));
+    },
+  },
+
+  methods: {
+    openAuth(tab) {
+      this.authTab = tab;
+      this.showAuth = true;
+    },
+    goToDashboard(role) {
+      this.showAuth = false;
+      this.page = role;
+      if (role === 'client') this.clientTab = 'overview';
+      if (role === 'freelancer') this.freelancerTab = 'overview';
+      if (role === 'admin') this.adminTab = 'overview';
+    },
+    hireFreelancer(app) {
+      this.showToast(`${app.name} hired successfully! Project created.`);
+      this.clientTab = 'projects';
+    },
+    applyToJob(job) {
+      this.showToast(`Application submitted for "${job.title}"!`);
+      setTimeout(() => this.freelancerTab = 'myapps', 1000);
+    },
+    submitJob() {
+      this.showPostJob = false;
+      this.showToast('Job posted successfully! It\'s now live for freelancers.');
+      this.clientTab = 'jobs';
+    },
+    showToast(msg) {
+      this.toast = msg;
+      setTimeout(() => this.toast = null, 3500);
+    }
+  },
+
+  mounted() {
+    this.allJobs = [...this.featuredJobs];
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
