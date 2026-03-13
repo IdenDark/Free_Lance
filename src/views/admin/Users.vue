@@ -1,3 +1,40 @@
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+// ensure user list is loaded
+authStore.loadUsers()
+
+const adminUsers = computed(() => {
+  return authStore.users.map((u, idx) => {
+    const initials = u.name
+      .split(' ')
+      .map(p => p[0])
+      .join('')
+      .slice(0, 2)
+    const color = '#' + Math.floor(Math.random() * 16777215).toString('16').padStart(6, '0')
+    return {
+      id: idx + 1,
+      name: u.name,
+      email: u.email,
+      role: u.role.charAt(0).toUpperCase() + u.role.slice(1),
+      status: 'active',
+      statusLabel: 'Active',
+      joined: u.joined || 'N/A',
+      color,
+      initials
+    }
+  })
+})
+</script>
+
+
+
 <template>
 
    <div  class="page-enter">
@@ -47,23 +84,3 @@
 </template>
 
 
-<script setup>
-import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-
-const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
-
-const adminUsers   = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Client', status: 'active', statusLabel: 'Active', joined: '2023-01-15', color: '#64A0FF', initials: 'JD' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Freelancer', status: 'suspended', statusLabel: 'Suspended', joined: '2023-02-20', color: '#4ADE80', initials: 'JS' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Client', status: 'active', statusLabel: 'Active', joined: '2023-03-10', color: '#F59E0B', initials: 'BJ' },
-  { id: 4, name: 'Alice Williams', email: 'alice@example.com', role: 'Freelancer', status: 'active', statusLabel: 'Active', joined: '2023-04-05', color: '#8B5CF6', initials: 'AW' }
-]
-
-
-
-
-
-</script>

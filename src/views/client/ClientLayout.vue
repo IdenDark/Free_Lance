@@ -3,6 +3,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ref, computed } from 'vue'
+import postJob from '../../components/postJob.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const route = useRoute()
@@ -19,24 +20,23 @@ const clientNav = [
   { label: 'Jobs', path: '/client/jobs' }
 ]
 
-const clientNavLabel = computed(() => {
-  const currentItem = clientNav.find(item => item.path === route.path)
-  return currentItem ? currentItem.label : 'Client Dashboard'
-})
 
-// const clientNavLabel = computed(() => {
-//   const currentItem = clientNav.find(item => item.key === clientTab.value)
-//   return currentItem ? currentItem.label : 'Client Dashboard'
-// })
+
 
 function logout() {
   authStore.logout()
+   router.push('/')
 }
 
-// function navigateTo(path) {
-//   router.push(path)
-// }
+// job stuff
+
+
+function navigateTo(path) {
+  router.push(path)
+}
 </script>
+
+
 
 
 <template>
@@ -69,7 +69,7 @@ function logout() {
           class="px-3 py-2.5 flex items-center gap-3 text-sm rounded-lg transition"
           :class="route.path === item.path ? 'bg-accent/10 text-accent' : 'text-muted hover:text-soft'"
         >
-          <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
+          <span v-html="item.icon" class="w-5 h-5 shrink-0"></span>
           <span>{{ item.label }}</span>
           <span v-if="item.badge" class="ml-auto badge badge-pending text-xs">{{ item.badge }}</span>
         </router-link>
@@ -98,6 +98,8 @@ function logout() {
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center text-ink font-600" style="font-size:9px;">3</span>
           </button>
           <button @click="showPostJob=true" class="btn-primary text-sm px-4 py-2">+ Post Job</button>
+          <postJob v-model="showPostJob" />
+          
         </div>
       </div>
 
@@ -109,3 +111,47 @@ function logout() {
 
   </div>
 </template>
+
+
+
+
+<!-- 
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { ref, computed } from 'vue'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const clientTab = ref('overview')
+const showPostJob = ref(false)
+
+const clientNav = [
+  { label: 'Overview', path: '/client' },
+  { label: 'Projects', path: '/client/projects' },
+  { label: 'Applications', path: '/client/applications' },
+  { label: 'Jobs', path: '/client/jobs' }
+]
+
+const clientNavLabel = computed(() => {
+  const currentItem = clientNav.find(item => item.path === route.path)
+  return currentItem ? currentItem.label : 'Client Dashboard'
+})
+
+// const clientNavLabel = computed(() => {
+//   const currentItem = clientNav.find(item => item.key === clientTab.value)
+//   return currentItem ? currentItem.label : 'Client Dashboard'
+// })
+
+function logout() {
+  authStore.logout()
+}
+
+// function navigateTo(path) {
+//   router.push(path)
+// }
+</script> -->
+
+

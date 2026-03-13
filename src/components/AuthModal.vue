@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const authTab = ref('login')
 const showAuth = defineModel() // if parent controls visibility
@@ -18,17 +20,53 @@ const registerEmail = ref('')
 const registerPassword = ref('')
 const registerRole = ref('client')
 
+import { nextTick } from 'vue'
+
 function handleLogin() {
-  authStore.login(loginEmail.value, loginPassword.value, loginRole.value)
+  const success = authStore.login(
+    loginEmail.value,
+    loginPassword.value,
+    loginRole.value
+  )
+  if (!success) {
+    alert('Invalid credentials')
+  } else {
+    console.log('login succeeded role=', authStore.role)
+    showAuth = false
+    // give Vue a tick to update reactive state before navigation
+    nextTick(() => {
+      const dest = {
+        client: '/client',
+        freelancer: '/freelancer',
+        admin: '/admin'
+      }[loginRole.value] || '/'
+      console.log('navigating to', dest)
+      router.push(dest).catch(() => {})
+    })
+  }
 }
 
 function handleRegister() {
-  authStore.register(
+  const success = authStore.register(
     registerName.value,
     registerEmail.value,
     registerPassword.value,
     registerRole.value
   )
+  if (!success) {
+    alert('A user with that email and role already exists')
+  } else {
+    console.log('registration succeeded role=', authStore.role)
+    showAuth = false
+    nextTick(() => {
+      const dest = {
+        client: '/client',
+        freelancer: '/freelancer',
+        admin: '/admin'
+      }[registerRole.value] || '/'
+      router.push(dest).catch(() => {})
+    })
+  }
 }
 </script>
 

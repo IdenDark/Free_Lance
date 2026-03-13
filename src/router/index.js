@@ -142,11 +142,24 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
+  // protect any route under /client or /freelancer (and admin handled by meta)
+  if (to.path.startsWith('/client') || to.path.startsWith('/freelancer')) {
+    if (!auth.isAuthenticated) {
+      return next('/')
+    }
+    // enforce correct role
+    if (to.path.startsWith('/client') && auth.role !== 'client') {
+      return next('/')
+    }
+    if (to.path.startsWith('/freelancer') && auth.role !== 'freelancer') {
+      return next('/')
+    }
+  }
+
   if (to.meta.role) {
     if (!auth.isAuthenticated) {
       return next('/')
     }
-
     if (auth.user.role !== to.meta.role) {
       return next('/')
     }

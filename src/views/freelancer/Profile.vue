@@ -1,3 +1,9 @@
+<script setup>
+import { ref } from 'vue'
+
+const freelancerSkills = ref(['React', 'Node.js', 'Vue.js',])
+</script>
+
 <template>
   <div  class="page-enter max-w-2xl space-y-6">
           <div class="rounded-2xl border border-border p-6 bg-card">

@@ -16,6 +16,7 @@ const freelancerNav = [
 
 function logout() {
   authStore.logout()
+  router.push('/')
 }
 </script>
 

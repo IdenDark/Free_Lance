@@ -1,3 +1,20 @@
+<script setup>
+import { useJobsStore } from '@/stores/jobsStore'
+import { useFreelancerStore } from '@/stores/freelancerStore'
+
+const jobsStore = useJobsStore()
+const freelancerStore = useFreelancerStore()
+
+const jobs = jobsStore.allJobs
+
+// handler invoked when user clicks the "Apply Now" button
+function applyToJob(job) {
+  // delegate to freelancer store which will also call jobsStore.applyToJob
+  freelancerStore.apply(job)
+}
+</script>
+
+
 <template>
    <div  class="page-enter">
           <div class="flex flex-col md:flex-row gap-4 mb-6">
@@ -6,8 +23,8 @@
             <select class="md:w-40"><option>Any Budget</option><option>Under $500</option><option>$500–$2000</option><option>$2000+</option></select>
           </div>
           <div class="grid gap-4">
-            <div v-for="job in allJobs" :key="job.id"
-              class="card-hover rounded-2xl border border-border p-6 bg-card">
+            <div v-for="job in jobs" :key="job.id"
+              class="card-hover rounded-2xl border border-border p-6" style="background:#1A1A24;">
               <div class="flex flex-col md:flex-row md:items-start gap-4">
                 <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" :style="`background:${job.color}20`">{{ job.icon }}</div>
                 <div class="flex-1">
