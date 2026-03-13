@@ -1,5 +1,16 @@
 <script setup>
 
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
+onMounted(() => {
+
+  authStore.loadUser()
+
+})
+
 </script>
 
 <template>
