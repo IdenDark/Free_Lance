@@ -1,6 +1,6 @@
 <template>
   <div  class="page-enter">
-          <div class="rounded-2xl border border-border overflow-hidden" style="background:#1A1A24;">
+          <div class="rounded-2xl border border-border overflow-hidden bg-card">
             <div class="p-6 border-b border-border flex items-center justify-between">
               <h3 class="font-display font-600">Incoming Applications</h3>
               <div class="flex gap-2">

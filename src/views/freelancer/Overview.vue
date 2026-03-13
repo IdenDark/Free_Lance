@@ -61,7 +61,7 @@ const featuredJobs = [
             </div>
             <div class="grid md:grid-cols-2 gap-4">
               <div v-for="job in featuredJobs.slice(0,4)" :key="job.id"
-                class="card-hover p-5 rounded-2xl border border-border cursor-pointer" style="background:#1A1A24;" @click="freelancerTab='browse'">
+                class="card-hover p-5 rounded-2xl border border-border cursor-pointer bg-card" @click="freelancerTab='browse'">
                 <div class="flex items-start gap-3 mb-3">
                   <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" :style="`background:${job.color}20`">{{ job.icon }}</div>
                   <div>

@@ -1,6 +1,6 @@
 <template>
   <div  class="page-enter space-y-4">
-          <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+          <div class="rounded-2xl border border-border p-6 bg-card">
             <div class="flex flex-col md:flex-row md:items-start gap-4 mb-5">
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-1">

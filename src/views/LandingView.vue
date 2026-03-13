@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { ref } from 'vue'
 
 import AuthModal from '@/components/AuthModal.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const showAuth = ref(false)
 
@@ -114,6 +115,7 @@ const howItWorks = ref([
         </div>
 
         <div class="flex items-center gap-3">
+          <ThemeToggle />
           <button @click="showAuth = true" class="btn-outline text-sm px-4 py-2">
             Sign In
           </button>
@@ -121,6 +123,7 @@ const howItWorks = ref([
             Get Started
           </button>
           <AuthModal v-model="showAuth" />
+  <!-- register theme toggle component globally via script setup import -->
         </div>
 
       </div>
@@ -259,7 +262,7 @@ const howItWorks = ref([
     </section>
 
     <!-- ================= HOW IT WORKS ================= -->
-    <section class="py-20 px-6" style="background:#13131A;">
+    <section class="py-20 px-6 bg-secondary">
       <div class="max-w-5xl mx-auto">
 
         <div class="text-center mb-14">

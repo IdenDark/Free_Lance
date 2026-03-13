@@ -19,7 +19,7 @@ const systemLogs = ref([
 <template>
 <div  class="page-enter space-y-6">
           <div class="grid md:grid-cols-2 gap-4">
-            <div v-for="m in systemMetrics" :key="m.label" class="rounded-2xl border border-border p-5" style="background:#1A1A24;">
+            <div v-for="m in systemMetrics" :key="m.label" class="rounded-2xl border border-border p-5 bg-card">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-muted text-sm">{{ m.label }}</span>
                 <span class="font-display font-600" :style="`color:${m.color}`">{{ m.value }}</span>
@@ -30,7 +30,7 @@ const systemLogs = ref([
               <p class="text-muted text-xs mt-2">{{ m.desc }}</p>
             </div>
           </div>
-          <div class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+          <div class="rounded-2xl border border-border p-6 bg-card">
             <h3 class="font-display font-600 mb-4">System Log</h3>
             <div class="space-y-2 font-mono text-xs">
               <div v-for="log in systemLogs" :key="log.id" class="flex items-center gap-3">

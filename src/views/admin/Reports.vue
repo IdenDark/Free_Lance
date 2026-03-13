@@ -12,7 +12,7 @@ const reports = ref([
 
 <template>
     <div class="page-enter space-y-4">
-          <div v-for="r in reports" :key="r.id" class="rounded-2xl border border-border p-6" style="background:#1A1A24;">
+          <div v-for="r in reports" :key="r.id" class="rounded-2xl border border-border p-6 bg-card">
             <div class="flex items-start gap-4">
               <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(255,107,107,0.1)">
                 <svg width="18" height="18" fill="none" stroke="#FF6B6B" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
