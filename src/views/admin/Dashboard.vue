@@ -1,3 +1,44 @@
+<script setup>
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+
+const authStore = useAuthStore()
+
+const adminStats = ref([
+  { label: 'Total Users', value: '2,543', change: '+12% this month', color: '#C8F53E', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75"/></svg>' },
+  { label: 'Active Projects', value: '89', change: '+5% this month', color: '#64A0FF', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l3 3L22 4"/></svg>' },
+  { label: 'Revenue', value: '$48.5K', change: '+23% this month', color: '#FF6B6B', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6a2 2 0 012 2v2a2 2 0 01-2 2H9v2"/></svg>' },
+  { label: 'Pending Tasks', value: '24', change: '-8% this month', color: '#9D5FFF', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' }
+])
+
+
+// ensure user list is loaded
+authStore.loadUsers()
+
+const adminUsers = computed(() => {
+  return authStore.users.map((u, idx) => {
+    const initials = u.name
+      .split(' ')
+      .map(p => p[0])
+      .join('')
+      .slice(0, 2)
+    const color = '#' + Math.floor(Math.random() * 16777215).toString('16').padStart(6, '0')
+    return {
+      id: idx + 1,
+      name: u.name,
+      email: u.email,
+      role: u.role.charAt(0).toUpperCase() + u.role.slice(1),
+      status: 'active',
+      statusLabel: 'Active',
+      joined: u.joined || 'N/A',
+      color,
+      initials
+    }
+  })
+})
+</script>
+
 <template>
   <div class="page-enter space-y-8">
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -62,21 +103,3 @@
 </template>
 
 
-<script setup>
-import { ref } from 'vue'
-
-const adminStats = ref([
-  { label: 'Total Users', value: '2,543', change: '+12% this month', color: '#C8F53E', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75"/></svg>' },
-  { label: 'Active Projects', value: '89', change: '+5% this month', color: '#64A0FF', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l3 3L22 4"/></svg>' },
-  { label: 'Revenue', value: '$48.5K', change: '+23% this month', color: '#FF6B6B', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h6a2 2 0 012 2v2a2 2 0 01-2 2H9v2"/></svg>' },
-  { label: 'Pending Tasks', value: '24', change: '-8% this month', color: '#9D5FFF', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' }
-])
-
-const adminUsers = ref([
-  { id: 1, name: 'Sarah Johnson', email: 'sarah@example.com', role: 'Client', status: 'active', statusLabel: 'Active', color: '#C8F53E', initials: 'SJ', joined: '2 days ago' },
-  { id: 2, name: 'Mike Chen', email: 'mike@example.com', role: 'Freelancer', status: 'active', statusLabel: 'Active', color: '#64A0FF', initials: 'MC', joined: '5 days ago' },
-  { id: 3, name: 'Emma Davis', email: 'emma@example.com', role: 'Client', status: 'pending', statusLabel: 'Pending', color: '#FF6B6B', initials: 'ED', joined: '1 week ago' },
-  { id: 4, name: 'Alex Rodriguez', email: 'alex@example.com', role: 'Freelancer', status: 'active', statusLabel: 'Active', color: '#9D5FFF', initials: 'AR', joined: '2 weeks ago' },
-  { id: 5, name: 'Lisa Park', email: 'lisa@example.com', role: 'Client', status: 'active', statusLabel: 'Active', color: '#FFA726', initials: 'LP', joined: '3 weeks ago' }
-])
-</script>
