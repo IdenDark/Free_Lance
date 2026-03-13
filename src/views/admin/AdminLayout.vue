@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
