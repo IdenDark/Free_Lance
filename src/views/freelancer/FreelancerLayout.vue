@@ -1,6 +1,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,8 +25,7 @@ function logout() {
 
     <!-- SIDEBAR -->
     <aside
-      class="w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col"
-      style="background:#13131A;"
+      class="w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col bg-secondary"
     >
       <!-- Logo -->
       <div class="p-6 border-b border-border">
@@ -90,6 +90,7 @@ function logout() {
             {{ new Date().toDateString() }}
           </p>
         </div>
+        <ThemeToggle />
       </div>
 
       <!-- DYNAMIC CONTENT -->

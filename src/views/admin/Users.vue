@@ -43,7 +43,7 @@ const adminUsers = computed(() => {
             <select class="w-40"><option>All Roles</option><option>Client</option><option>Freelancer</option></select>
             <select class="w-40"><option>All Status</option><option>Active</option><option>Suspended</option></select>
           </div>
-          <div class="rounded-2xl border border-border overflow-hidden" style="background:#1A1A24;">
+          <div class="rounded-2xl border border-border overflow-hidden bg-card">
             <table class="w-full">
               <thead>
                 <tr class="border-b border-border">

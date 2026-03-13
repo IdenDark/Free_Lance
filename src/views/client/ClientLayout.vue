@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ref, computed } from 'vue'
 import postJob from '../../components/postJob.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,7 +43,7 @@ function navigateTo(path) {
   <div class="flex min-h-screen">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col" style="background:#13131A;">
+    <aside class="sidebar w-64 fixed top-0 left-0 h-full border-r border-border flex flex-col bg-secondary">
       <div class="p-6 border-b border-border">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
@@ -53,7 +54,7 @@ function navigateTo(path) {
       </div>
       <div class="p-4 border-b border-border">
         <div class="flex items-center gap-3 p-3">
-          <div class="avatar w-10 h-10 text-sm text-ink" style="background:#C8F53E;">SM</div>
+          <div class="avatar w-10 h-10 text-sm text-ink bg-accent">SM</div>
           <div>
             <div class="font-display font-600 text-sm">Sarah Mitchell</div>
             <div class="text-muted text-xs">Client Account</div>
@@ -91,6 +92,7 @@ function navigateTo(path) {
           <!-- <p class="text-muted text-xs">Saturday, February 21, 2026</p> -->
         </div>
         <div class="flex items-center gap-3">
+          <ThemeToggle />
           <button class="relative w-9 h-9 rounded-lg border border-border flex items-center justify-center text-muted hover:text-soft transition-colors">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
             <span class="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center text-ink font-600" style="font-size:9px;">3</span>

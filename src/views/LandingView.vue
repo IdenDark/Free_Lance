@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { ref, watch } from 'vue'
 
 import AuthModal from '@/components/AuthModal.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const showAuth = ref(false)
 
@@ -280,7 +281,7 @@ const howItWorks = ref([
     </section>
 
     <!-- ================= HOW IT WORKS ================= -->
-    <section class="py-20 px-6" style="background:#13131A;">
+    <section class="py-20 px-6 bg-secondary">
       <div class="max-w-5xl mx-auto">
 
         <div class="text-center mb-14">
